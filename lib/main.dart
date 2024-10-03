@@ -10,73 +10,133 @@ import 'package:flutter/material.dart';
 /// If you press on a square, it will be removed.
 /// If you press anywhere else, another square will be added.
 void main() {
-  runApp(
-    GameWidget(
-      game: FlameGame(world: MyWorld()),
-    ),
-  );
+  runApp(GameWidget(game: GameScene()));
 }
 
-class MyWorld extends World with TapCallbacks {
-  @override
-  Future<void> onLoad() async {
-    add(Square(Vector2.zero()));
-  }
+class GameScene extends FlameGame with TapDetector {
+  late SpriteComponent planetNode;
+  late TextComponent numberNode;
+  late TextComponent ballLabel;
 
-  @override
-  void onTapDown(TapDownEvent event) {
-    super.onTapDown(event);
-    if (!event.handled) {
-      final touchPoint = event.localPosition;
-      add(Square(touchPoint));
-    }
-  }
-}
+  int numberOfPlayers = 2;
 
-class Square extends RectangleComponent with TapCallbacks {
-  static const speed = 3;
-  static const squareSize = 128.0;
-  static const indicatorSize = 6.0;
+  int planetIdx = 0;
 
-  static final Paint red = BasicPalette.red.paint();
-  static final Paint blue = BasicPalette.blue.paint();
+  final List<String> planetTypes = ['images/earth.png', 'images/moon.png', 'images/mars.png', 'images/uranus.png']; // 행성 이미지 파일 이름 리스트
 
-  Square(Vector2 position)
-      : super(
-    position: position,
-    size: Vector2.all(squareSize),
-    anchor: Anchor.center,
-  );
+  final List<Color> balls = [Colors.red, Colors.orange];
+  final List<Color> colorSet = [
+    Colors.green,
+    Colors.purple,
+    Colors.yellow,
+    Colors.pink,
+    Colors.lightGreen,
+    Colors.blue
+  ];
+
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    add(
-      RectangleComponent(
-        size: Vector2.all(indicatorSize),
-        paint: blue,
-      ),
-    );
-    add(
-      RectangleComponent(
-        position: size / 2,
-        size: Vector2.all(indicatorSize),
-        anchor: Anchor.center,
-        paint: red,
-      ),
-    );
+
+
+    // 초기 행성 노드 생성
+    planetNode = SpriteComponent()
+      ..sprite = await loadSprite(planetTypes[planetIdx]) // 첫 번째 행성 로드
+      ..size = Vector2(120, 120)
+      ..position = Vector2(size.x / 2, size.y / 4);
+
+    add(planetNode);
+
+    // 플레이어 수 표시 노드
+    numberNode = TextComponent(
+      text: numberOfPlayers.toString(),
+      textRenderer: TextPaint(style: const TextStyle(fontSize: 48)),
+    )
+      ..position = Vector2(size.x / 2, size.y / 2);
+    add(numberNode);
+
+    //볼 레이블
+    ballLabel = TextComponent();
+    updateBalls();
+    add(ballLabel);
+  }
+
+  void updateBalls() {
+    ballLabel.text = '';
+    for (int i = 0; i < balls.length; i++) {
+      ballLabel.text += '⚽ '; // 임시 공 아이콘
+    }
+  }
+
+
+  void increasePlayers() {
+    if (numberOfPlayers < 9) {
+      numberOfPlayers += 1;
+      numberNode.text = numberOfPlayers.toString();
+      addBall();
+    }
+  }
+
+
+  void decreasePlayers() {
+    if (numberOfPlayers > 2) {
+      numberOfPlayers -= -1;
+      numberNode.text = numberOfPlayers.toString();
+      removeBall();
+    }
+  }
+  void addBall() {
+    balls.add(colorSet[numberOfPlayers -3]);
+    updateBalls();
+  }
+
+  void removeBall() {
+    balls.removeLast();
+    updateBalls();
+  }
+
+
+  //오른쪽 버튼 액션 (행성)
+  void rightButtonAction() {
+    planetIdx +=1;
+    planetIdx =  planetIdx % planetTypes.length;
+    updatePlanet();
+  }
+
+  //왼쪽 버튼 액션 (행성)
+  void leftButtonAction() {
+    planetIdx -= 1;
+    if (planetIdx < 0) {
+      planetIdx = planetTypes.length -1;
+    }
+    updatePlanet();
+  }
+
+
+  //행성 업데이트 메소드
+  void updatePlanet() async {
+    remove(planetNode);
+    planetNode = SpriteComponent()
+      ..sprite = await loadSprite(planetTypes[planetIdx]) // 새로운 행성 로드
+      ..size = Vector2(120, 120) // 행성 크기 설정
+      ..position = Vector2(size.x / 2, size.y / 4); // 행성 위치 설정
+
+    add(planetNode);
   }
 
   @override
-  void update(double dt) {
-    super.update(dt);
-    angle += speed * dt;
-    angle %= 2 * math.pi;
+  void onTapDown(TapDownInfo info) {
+    final touchPosition = info.raw.globalPosition;
+
+    if (rightButton.containsPoint(touchPosition.toVector2())) {
+      rightButtonAction();
+    } else if (leftButton.containsPoint(touchPosition.toVector2())) {
+      leftButtonAction();
+    }
   }
 
-  @override
-  void onTapDown(TapDownEvent event) {
-    removeFromParent();
-    event.handled = true;
-  }
+
+
 }
+
