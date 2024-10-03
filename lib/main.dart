@@ -18,7 +18,6 @@ class GameScene extends FlameGame with TapDetector {
   late SpriteComponent imageNode;
   late SpriteComponent leftNode;
   late SpriteComponent rightNode;
-  late SpriteComponent planetNode;
   late TextComponent numberNode;
   late TextComponent ballLabel;
   late RectangleComponent playButton;
@@ -45,12 +44,12 @@ class GameScene extends FlameGame with TapDetector {
     super.onLoad();
 
 
-    final screenHeight = size.y;
+
 
     imageNode = SpriteComponent()
       ..sprite = await loadSprite(planetTypes[planetIdx])
       ..size = Vector2(96, 96)
-      ..position = Vector2((size.x / 2) - (96 / 2), screenHeight / 4); // 이미지 너비의 절반을 뺌
+      ..position = Vector2((size.x / 2) - (96 / 2), size.y / 4); // 이미지 너비의 절반을 뺌
     add(imageNode);
 
 
@@ -190,13 +189,14 @@ class GameScene extends FlameGame with TapDetector {
 
   //행성 업데이트 메소드
   void updatePlanet() async {
-    remove(planetNode);
-    planetNode = SpriteComponent()
+    remove(imageNode);
+    imageNode = SpriteComponent()
       ..sprite = await loadSprite(planetTypes[planetIdx]) // 새로운 행성 로드
-      ..size = Vector2(120, 120) // 행성 크기 설정
-      ..position = Vector2(size.x / 2, size.y / 4); // 행성 위치 설정
+      ..size = Vector2(96, 96) // 행성 크기 설정
+      ..position = Vector2((size.x / 2) - (96 / 2), size.y / 4); // 이미지 너비의 절반을 뺌
 
-    add(planetNode);
+
+    add(imageNode);
   }
 
   @override
