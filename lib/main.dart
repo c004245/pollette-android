@@ -18,6 +18,8 @@ class GameScene extends FlameGame with TapDetector {
   late SpriteComponent imageNode;
   late SpriteComponent leftNode;
   late SpriteComponent rightNode;
+  late SpriteComponent decreaseNode;
+  late SpriteComponent increaseNode;
   late TextComponent numberNode;
   late TextComponent ballLabel;
   late RectangleComponent playButton;
@@ -62,13 +64,6 @@ class GameScene extends FlameGame with TapDetector {
     );
     add(gravityLabel);
 
-  // 초기 행성 노드 생성
-  //   final earthNode = SpriteComponent()
-  //     ..sprite = await loadSprite(planetTypes[planetIdx]) // 첫 번째 행성 로드
-  //     ..size = Vector2(120, 120)
-  //     ..position = Vector2(imageNode.position.x - 60, imageNode.position.y - 60);
-  //   add(earthNode);
-
     // Left Arrow Button
     leftNode = SpriteComponent()
       ..sprite = await loadSprite('left.png') // Chevron 이미지 사용
@@ -83,68 +78,106 @@ class GameScene extends FlameGame with TapDetector {
       ..position = Vector2(size.x - 60, imageNode.position.y + (imageNode.size.y / 2) - (50 / 2)); // 우측 마진 10, imageNode의 세로 가운데
     add(rightNode);
 
-    // // 플레이어 수 표시 노드
-    // numberNode = TextComponent(
-    //   text: numberOfPlayer.toString(),
-    //   textRenderer: TextPaint(style: const TextStyle(fontSize: 48)),
-    //   position: Vector2(imageNode.position.x, imageNode.position.y - 300),
-    // );
-    // add(numberNode);
+    // Players Label
+    final playerLabel = TextComponent(
+      text: "Players",
+      textRenderer: TextPaint(style: const TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold)),
+      position: Vector2((size.x / 2) - (7 * 12 / 2),
+        imageNode.position.y + imageNode.size.y + 50,  // imageNode의 하단에서 50px 아래
+      ),    );
+    add(playerLabel);
+
+    numberNode = TextComponent(
+      text: numberOfPlayer.toString(),
+      textRenderer: TextPaint(style: const TextStyle(fontSize: 30)),
+      // 좌우 정중앙에 배치되도록 수정 (텍스트 값을 바로 사용하여 길이를 계산)
+      position: Vector2(
+        (size.x / 2) - ((numberOfPlayer.toString().length * 24) / 2), // 텍스트 길이를 기준으로 정중앙에 맞춤
+        playerLabel.y + 50,
+      ),
+    );
+    add(numberNode);
+
+
+
+    // Minus Button
+    decreaseNode = SpriteComponent()
+      ..sprite = await loadSprite('left.png')
+      ..size = Vector2(50, 50)
+      ..position = Vector2(10, numberNode.position.y + (numberNode.size.y / 2) - (50 / 2)); // 좌측 마진 10, imageNode의 세로 가운데에 맞춤
+    add(decreaseNode);
     //
-    // // Players Label
-    // final playerLabel = TextComponent(
-    //   text: "Players",
-    //   textRenderer: TextPaint(style: const TextStyle(fontSize: 48, fontFamily: "Galmuri11", fontWeight: FontWeight.bold)),
-    //   position: Vector2(numberNode.position.x, numberNode.position.y + 100),
-    // );
-    // add(playerLabel);
-    //
-    // // Minus Button
-    // final decreaseNode = SpriteComponent()
-    //   ..sprite = await loadSprite('minus.png')
-    //   ..size = Vector2(50, 50)
-    //   ..position = Vector2(numberNode.position.x - 200, imageNode.position.y - 300);
-    // add(decreaseNode);
-    //
-    // // Plus Button
-    // final increaseNode = SpriteComponent()
-    //   ..sprite = await loadSprite('plus.png')
-    //   ..size = Vector2(50, 50)
-    //   ..position = Vector2(numberNode.position.x + 200, imageNode.position.y - 300);
-    // add(increaseNode);
-    //
-    // // 공 표시 노드
-    // ballLabel = TextComponent();
-    // updateBalls();
-    // ballLabel.position = Vector2(numberNode.position.x - 24, numberNode.position.y - 100);
-    // add(ballLabel);
-    //
-    // // Start 버튼
-    // playButton = RectangleComponent(
-    //   size: Vector2(450, 96),
-    //   position: Vector2(ballLabel.position.x - 225, ballLabel.position.y - 300),
-    //   paint: Paint()..color = Colors.green,
-    // );
-    // add(playButton);
-    //
-    // final playLabel = TextComponent(
-    //   text: "START",
-    //   textRenderer: TextPaint(style: const TextStyle(fontSize: 48, fontFamily: "Galmuri11-Bold")),
-    //   position: Vector2(playButton.position.x + 225, playButton.position.y + 48),
-    // );
-    // playButton.add(playLabel);
+    // Plus Button
+    increaseNode = SpriteComponent()
+      ..sprite = await loadSprite('right.png')
+      ..size = Vector2(50, 50)
+      ..position = Vector2(size.x - 60,  numberNode.position.y + (numberNode.size.y / 2) - (50 / 2)); // 우측 마진 10, imageNode의 세로 가운데
+    add(increaseNode);
+
+    // 공 표시 노드
+    ballLabel = TextComponent();
+
+    updateBalls();
+
+    add(ballLabel);
+
+    // Start 버튼
+    playButton = RectangleComponent(
+      size: Vector2(250, 60), // 버튼 크기 설정
+      position: Vector2(
+          (size.x / 2) - (250 / 2), // 수평 정중앙에 맞추기
+          size.y - 96 - 50 // 하단 마진 50 적용, 버튼 높이 고려
+      ),
+      paint: Paint()..color = Colors.green,
+    );
+    add(playButton);
+
+    final playLabel = TextComponent(
+      text: "START",
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          fontSize: 30,
+          fontFamily: "Galmuri11-Bold",
+        ),
+      ),
+      // playButton의 정중앙에 맞추기
+      position: Vector2(
+        playButton.position.x + (playButton.size.x / 2) - (6 * 24 / 2), // 'START' 텍스트 길이를 고려한 중앙 배치
+        playButton.position.y + (playButton.size.y / 2) - (48 / 2), // 버튼 높이 기준 중앙에 텍스트 맞춤
+      ),
+    );
+    add(playLabel);
   }
 
   void updateBalls() {
-    ballLabel.text = '';
-    for (int i = 0; i < balls.length; i++) {
-      ballLabel.text += '⚽ '; // 임시 공 아이콘
+    // 기존의 공 제거
+    children.whereType<CircleComponent>().forEach(remove);
+
+    // 공들의 총 너비 계산 (각 공이 36px 간격으로 배치됨, 공의 크기가 작아짐)
+    final ballRadius = 8.0; // 공의 반지름을 작게 설정 (기존보다 작음)
+    final ballSpacing = 36.0; // 공 사이의 간격을 36px로 좁힘
+    final totalWidth = (balls.length - 1) * ballSpacing + ballRadius * 2; // 각 공 간격과 마지막 공의 위치 포함
+
+    // 공을 새로 추가
+    for (var i = 0; i < balls.length; i++) {
+      final ball = CircleComponent(
+        radius: ballRadius, // 공의 반지름 설정
+        paint: Paint()..color = balls[i], // 색상 설정
+        position: Vector2(
+          // numberNode의 중앙에서 공들의 총 너비의 절반만큼 왼쪽으로 이동한 위치에서 시작
+          (numberNode.position.x + (numberNode.size.x / 2)) - (totalWidth / 2) + (i * ballSpacing),
+          numberNode.position.y + 100, // numberNode의 아래쪽에 배치 (100px 아래)
+        ),
+      );
+      add(ball); // 공 추가
     }
   }
 
 
+
+
   void increasePlayers() {
-    if (numberOfPlayer < 9) {
+    if (numberOfPlayer < 8) {
       numberOfPlayer += 1;
       numberNode.text = numberOfPlayer.toString();
       addBall();
@@ -153,8 +186,9 @@ class GameScene extends FlameGame with TapDetector {
 
 
   void decreasePlayers() {
+    print("decrease -> ${numberOfPlayer} -- ");
     if (numberOfPlayer > 2) {
-      numberOfPlayer -= -1;
+      numberOfPlayer -= 1;
       numberNode.text = numberOfPlayer.toString();
       removeBall();
     }
@@ -165,6 +199,7 @@ class GameScene extends FlameGame with TapDetector {
   }
 
   void removeBall() {
+    print("balls -> ${balls.length}");
     balls.removeLast();
     updateBalls();
   }
@@ -210,6 +245,14 @@ class GameScene extends FlameGame with TapDetector {
     } else if (rightNode.containsPoint(touchPosition)) {
       print("right click");
       rightButtonAction();
+    } else if (decreaseNode.containsPoint(touchPosition)) {
+      print("decrease");
+      decreasePlayers();
+    } else if (increaseNode.containsPoint(touchPosition)) {
+      print("increase");
+      increasePlayers();
+    } else if (playButton.containsPoint(touchPosition)) {
+      print("click play");
     }
 
 
