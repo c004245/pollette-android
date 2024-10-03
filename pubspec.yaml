@@ -36,6 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   flame: ^1.19.0
+  flutter_svg: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -54,10 +55,19 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - images/
+    - assets/images/
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
+
+  fonts:
+    - family: Galmuri11
+      fonts:
+        - asset: assets/fonts/Galmuri11-Bold.ttf
+          weight: 700 # Bold 폰트의 굵기
+        - asset: assets/fonts/Galmuri11.ttf
+          weight: 400 # Regular 폰트의 굵기 (옵션으로 추가)
+
   uses-material-design: true
 
   # To add images to your application, add an images section, like this:
