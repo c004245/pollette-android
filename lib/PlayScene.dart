@@ -9,7 +9,7 @@ class PlayScene extends Forge2DGame {
   PlayScene({required this.numberOfBalls, required this.planet})
   :super(gravity: Vector2(0, planet.gravity));
 
-  
+
 
   @override
   Future<void> onLoad() async {
@@ -61,7 +61,6 @@ class GroundComponent extends RectangleComponent {
   }
 }
 
-class BlackholeComponent extends Circle
 
 class PlanetType {
   final double gravity;
