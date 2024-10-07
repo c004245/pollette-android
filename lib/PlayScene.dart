@@ -1,8 +1,14 @@
-import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
+import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:pollette/BallComponent.dart';
+import 'package:pollette/BlackholeComponent.dart';
 class PlayScene extends Forge2DGame {
+  late CameraComponent cameraComponent;
+  // late World worldComponent;
+
   final int numberOfBalls;
   final PlanetType planet;
 
@@ -15,9 +21,17 @@ class PlayScene extends Forge2DGame {
   Future<void> onLoad() async {
     super.onLoad();
 
-    //바닥과 블랙홀 추가
-    addGround();
-    addBlackhole();
+    // worldComponent = World();
+    // add(worldComponent);
+    //
+    //
+    // cameraComponent = CameraComponent(world: worldComponent);
+    // add(cameraComponent);
+    // //바닥과 블랙홀 추가
+    // addGround();
+
+    final screenWidth = size.x;
+    addBlackhole(screenWidth);
 
     //공들 생성
     createBalls();
@@ -32,7 +46,7 @@ class PlayScene extends Forge2DGame {
     ];
 
     for (int i = 0; i < numberOfBalls; i++) {
-      final ball = BallComponent(
+      final ball = Ballcomponent(
         position: Vector2(screenWidth / 2 + i.toDouble(), screenHeight * 0.9),
         color: ballColors[i % ballColors.length],
       );
@@ -40,26 +54,78 @@ class PlayScene extends Forge2DGame {
     }
   }
 
-  void addGround() {
-    final screenSize = size;
-    //왼쪽바닥
-    add(GroundCOm)
+
+  void addBlackhole(double screenWidth) {
+    final blackholePosition = Vector2(screenWidth / 2, 12);
+    final blackhole = Blackholecomponent(position: blackholePosition);
+    add(blackhole);
+
   }
+
+
+  void createCaption(double screenWidth, double screenHeight) {
+    //텍스트 내용 설정
+    final captionText = planet.caption;
+
+    //create text component
+    final textPaint = TextPaint(
+      style: const TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold, color: Colors.white));
+
+    // 텍스트 컴포넌트 생성 및 위치 설정
+    final caption = TextComponent(
+    text: captionText,
+    textRenderer: textPaint,
+    position: Vector2(screenWidth / 2, screenHeight * 0.8),
+    anchor: Anchor.center, // 중앙 기준 배치
+    );
+
+    add(caption); // 게임 씬에 텍스트
+  }
+
 
   @override
   void update(double dt) {
     super.update(dt);
 
+    // if (balls.length == 1) {
+    //   final ball = balls.first;
+    //
+    //   cameraComponent.follow(ball);
+    //
+    //   cameraComponent.viewfinder.zoom *= 0.98;
+    // }
+  }
 
+  @override
+  void beginContact(Object other, Contact contact) {
+    // final fixtureA = contact.fixtureA;
+    // final fixtureB = contact.fixtureB;
+    //
+    // final bodyA = fixtureA.body.userData as Ballcomponent?;
+    // final bodyB = fixtureB.body.userData as Blackholecomponent?;
+    //
+    // //충돌한 물체가 공이나 블랙홀인가?
+    // if ((bodyA != null && bodyB != null)) {
+    //   bodyB?.removeFromParent(); // 블랙홀 제거
+    //   balls.remove(bodyB);  // 공 리스트에서 제거
+    //
+    //   // 남은 공이 하나인 경우
+    //   if (balls.length == 1) {
+    //     bodyA.removeFromParent(); // 남은 공 제거
+    //     balls.first.body.setGravityScale(0.0);  // 마지막 남은 공은 중력 영향을 받지 않도록 설정
+    //   }
+    // }
+  }
+  @override
+  void onTapUp(TapUpInfo info) {
+    // if (balls.length == 1) {
+    //   removeAllChildren(); // 자식 노드 모두 제거
+    //   removeFromParent(); // 부모에서 씬 제거
+    //   removeAllActions(); // 모든 액션 제거
+    // }
   }
 }
 
-
-class GroundComponent extends RectangleComponent {
-  GroundComponent(Vector2 position, bool isLeft): super(size: Vector2(200, 10), position: position, paint: Paint().. color = Colors.brown) {
-    body  = BodyComponent()..createBody(BodyDef(position: position, type: BodyType.static));
-  }
-}
 
 
 class PlanetType {
