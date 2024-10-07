@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:pollette/BlackholeComponent.dart';
 import 'package:pollette/SpinnerComponent.dart';
 import 'package:pollette/WallComponent.dart';
+
+import 'BoxComponent.dart';
 class PlayScene extends forge2d.Forge2DGame {
   late flame.CameraComponent cameraComponent;
   late flame.World cameraWorld;
@@ -54,7 +56,7 @@ class PlayScene extends forge2d.Forge2DGame {
     // add(cameraComponent);
     // //바닥과 블랙홀 추가
     // addGround();
-
+addBoxes(this, screenWidth, screenHeight);
     addSpinner(this, screenWidth, screenHeight, pi);
     addBlackhole(screenWidth, screenHeight);
 
@@ -86,37 +88,38 @@ class PlayScene extends forge2d.Forge2DGame {
     add(blackhole);
   }
 
-  // void addRightGround(double screenWidth, double screenHeight) {
-  //   // 기존 점들의 Y 좌표를 반전
-  //   final points = [
-  //     Vector2(0, -screenHeight), // 아래로 이동 (Y 좌표 반전)
-  //     Vector2(0, -screenHeight * 0.2),
-  //     Vector2(screenWidth * -0.2, -screenHeight * 0.1),
-  //     Vector2(screenWidth * -0.35, -screenHeight * 0.08),
-  //     Vector2(screenWidth * -0.46, -screenHeight * 0.06),
-  //     Vector2(screenWidth * -0.46, screenHeight * 0.5), // 상단으로 이동
-  //   ];
-  //
-  //   // WallComponent를 추가하여 경계를 화면 하단으로 배치
-  //   final rightWall = WallComponent(points: points, position: Vector2(screenWidth, 0));
-  //   add(rightWall);
-  // }
-  //
-  // void addLeftGround(double screenWidth, double screenHeight) {
-  //   // 기존 점들의 Y 좌표를 반전
-  //   final points = [
-  //     Vector2(0, -screenHeight), // 아래로 이동 (Y 좌표 반전)
-  //     Vector2(0, -screenHeight * 0.2),
-  //     Vector2(screenWidth * 0.2, -screenHeight * 0.1),
-  //     Vector2(screenWidth * 0.35, -screenHeight * 0.08),
-  //     Vector2(screenWidth * 0.46, -screenHeight * 0.06),
-  //     Vector2(screenWidth * 0.46, screenHeight * 0.5), // 상단으로 이동
-  //   ];
-  //
-  //   // WallComponent를 추가하여 경계를 화면 하단으로 배치
-  //   final leftWall = WallComponent(points: points, position: Vector2(0, 0));
-  //   add(leftWall);
-  // }
+
+  void addBoxes(Forge2DGame game, double screenWidth, double screenHeight) {
+    final boxSize = screenWidth / 24;
+
+    // 첫 번째 상자 그룹 추가
+    for (int i = -5; i < 6; i++) {
+      print("addbox");
+      final position = Vector2(screenWidth / 2 - i * boxSize * 1.95, screenHeight * 0.6); // 박스 높이 설정 (0.6에서 0.4로 수정)
+      final rotation = Random().nextDouble() * pi * 2 - pi; // 랜덤 회전
+      final box = BoxComponent(
+        size: Vector2(boxSize, boxSize),
+        position: position,
+        rotation: rotation,
+        isDynamic: false,
+      );
+
+      game.add(box);
+    }
+
+    for (int i = -4; i < 5; i++) {
+      final position = Vector2(screenWidth / 2 - i * boxSize * 1.9, screenHeight * 0.5); // 박스 높이 설정 (0.5에서 0.3으로 수정)
+      final rotation = Random().nextDouble() * pi * 2 - pi;
+      final box = BoxComponent(
+        size: Vector2(boxSize, boxSize),
+        position: position,
+        rotation: rotation,
+        isDynamic: false,
+      );
+
+      game.add(box);
+    }
+  }
 
 
   void createCaption(double screenWidth, double screenHeight) {
