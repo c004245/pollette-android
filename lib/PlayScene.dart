@@ -1,10 +1,15 @@
 import 'dart:math';
+import 'dart:ui';
+
 
 import 'package:flame/components.dart' as flame;
+import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flame/text.dart';
 import 'package:flame_forge2d/flame_forge2d.dart' as forge2d;
 import 'package:flame/game.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
+import 'package:flutter/material.dart';
 import 'package:pollette/BlackholeComponent.dart';
 import 'package:pollette/SpinnerComponent.dart';
 import 'package:pollette/WallComponent.dart';
@@ -40,6 +45,7 @@ class PlayScene extends forge2d.Forge2DGame {
     addRightGround(screenWidth, screenHeight, this);
 
 
+    createCaption(screenWidth, screenHeight);
     // worldComponent = World();
     // add(worldComponent);
     //
@@ -113,24 +119,31 @@ class PlayScene extends forge2d.Forge2DGame {
   // }
 
 
-  // void createCaption(double screenWidth, double screenHeight) {
-  //   //텍스트 내용 설정
-  //   final captionText = planet.caption;
-  //
-  //   //create text component
-  //   final textPaint = TextPaint(
-  //     style: const TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold, color: Colors.white));
-  //
-  //   // 텍스트 컴포넌트 생성 및 위치 설정
-  //   final caption = TextComponent(
-  //   text: captionText,
-  //   textRenderer: textPaint,
-  //   position: Vector2(screenWidth / 2, screenHeight * 0.8),
-  //   anchor: Anchor.center, // 중앙 기준 배치
-  //   );
-  //
-  //   add(caption); // 게임 씬에 텍스트
-  // }
+  void createCaption(double screenWidth, double screenHeight) {
+    //텍스트 내용 설정
+    // final captionText = planet.caption;
+    final captionText = "창백한 푸른 점.";
+
+    //create text component
+    // TextPaint의 TextStyle을 올바르게 설정
+    final textPaint = TextPaint(
+      style: const TextStyle(
+        fontSize: 24,
+        fontFamily: "Galmuri11",
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+    );
+    // 텍스트 컴포넌트 생성 및 위치 설정
+    final caption = TextComponent(
+    text: captionText,
+    textRenderer: textPaint,
+    position: Vector2(screenWidth / 2, screenHeight * 0.3),
+    anchor: Anchor.center, // 중앙 기준 배치
+    );
+
+    add(caption); // 게임 씬에 텍스트
+  }
 
 
   @override
