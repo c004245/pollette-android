@@ -12,7 +12,8 @@ import 'package:pollette/PlayScene.dart';
 /// If you press on a square, it will be removed.
 /// If you press anywhere else, another square will be added.
 void main() {
-  runApp(GameWidget(game: PlayScene(numberOfBalls: 9, planet: PlanetType.earth)));
+  // runApp(GameWidget(game: PlayScene(numberOfBalls: 9, planet: PlanetType.earth)));
+  runApp(GameWidget(game: PlayScene(gravity: 0)));
 }
 
 class GameScene extends FlameGame with TapDetector {

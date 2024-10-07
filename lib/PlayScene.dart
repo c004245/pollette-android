@@ -1,25 +1,41 @@
-import 'package:flame/components.dart';
+import 'package:flame/components.dart' as flame;
 import 'package:flame/events.dart';
-import 'package:flame_forge2d/flame_forge2d.dart';
+import 'package:flame_forge2d/flame_forge2d.dart' as forge2d;
 import 'package:flame/game.dart';
-import 'package:flutter/material.dart';
-import 'package:pollette/BallComponent.dart';
+import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:pollette/BlackholeComponent.dart';
-class PlayScene extends Forge2DGame {
-  late CameraComponent cameraComponent;
-  // late World worldComponent;
+import 'package:pollette/WallComponent.dart';
+class PlayScene extends forge2d.Forge2DGame {
+  late flame.CameraComponent cameraComponent;
+  late flame.World cameraWorld;
 
-  final int numberOfBalls;
-  final PlanetType planet;
+  final double gravity; // 중력 값
 
-  PlayScene({required this.numberOfBalls, required this.planet})
-  :super(gravity: Vector2(0, planet.gravity));
+  PlayScene({required this.gravity}) : super(gravity: Vector2(0, gravity));
+
+
 
 
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
+    // 화면의 크기 가져오기
+    final screenWidth = size.x;
+    final screenHeight = size.y;
+
+    cameraWorld = flame.World();
+    add(cameraWorld);
+
+    // 카메라 설정
+    cameraComponent = flame.CameraComponent(world: cameraWorld); // 카메라 생성
+    cameraComponent.viewfinder.position = Vector2(screenWidth / 2, screenHeight / 2); // 중앙 위치 설정
+    add(cameraComponent); // 카메라 추가
+
+    // 왼쪽 및 오른쪽 벽(경계) 추가
+    addLeftGround(screenWidth, screenHeight, this);
+    addRightGround(screenWidth, screenHeight, this);
+
 
     // worldComponent = World();
     // add(worldComponent);
@@ -30,57 +46,87 @@ class PlayScene extends Forge2DGame {
     // //바닥과 블랙홀 추가
     // addGround();
 
-    final screenWidth = size.x;
     addBlackhole(screenWidth);
 
     //공들 생성
-    createBalls();
+    // createBalls();
   }
 
-  void createBalls() {
-    final screenWidth = size.x;
-    final screenHeight = size.y;
-    final ballColors = [
-      Colors.red, Colors.orange, Colors.green, Colors.purple,
-      Colors.yellow, Colors.cyan, Colors.lightGreen, Colors.blue,
-    ];
-
-    for (int i = 0; i < numberOfBalls; i++) {
-      final ball = Ballcomponent(
-        position: Vector2(screenWidth / 2 + i.toDouble(), screenHeight * 0.9),
-        color: ballColors[i % ballColors.length],
-      );
-      add(ball);
-    }
-  }
+  // void createBalls() {
+  //   final screenWidth = size.x;
+  //   final screenHeight = size.y;
+  //   final ballColors = [
+  //     Colors.red, Colors.orange, Colors.green, Colors.purple,
+  //     Colors.yellow, Colors.cyan, Colors.lightGreen, Colors.blue,
+  //   ];
+  //
+  //   for (int i = 0; i < numberOfBalls; i++) {
+  //     final ball = Ballcomponent(
+  //       position: Vector2(screenWidth / 2 + i.toDouble(), screenHeight * 0.9),
+  //       color: ballColors[i % ballColors.length],
+  //     );
+  //     add(ball);
+  //   }
+  // }
 
 
   void addBlackhole(double screenWidth) {
     final blackholePosition = Vector2(screenWidth / 2, 12);
     final blackhole = Blackholecomponent(position: blackholePosition);
     add(blackhole);
-
   }
 
+  // void addRightGround(double screenWidth, double screenHeight) {
+  //   // 기존 점들의 Y 좌표를 반전
+  //   final points = [
+  //     Vector2(0, -screenHeight), // 아래로 이동 (Y 좌표 반전)
+  //     Vector2(0, -screenHeight * 0.2),
+  //     Vector2(screenWidth * -0.2, -screenHeight * 0.1),
+  //     Vector2(screenWidth * -0.35, -screenHeight * 0.08),
+  //     Vector2(screenWidth * -0.46, -screenHeight * 0.06),
+  //     Vector2(screenWidth * -0.46, screenHeight * 0.5), // 상단으로 이동
+  //   ];
+  //
+  //   // WallComponent를 추가하여 경계를 화면 하단으로 배치
+  //   final rightWall = WallComponent(points: points, position: Vector2(screenWidth, 0));
+  //   add(rightWall);
+  // }
+  //
+  // void addLeftGround(double screenWidth, double screenHeight) {
+  //   // 기존 점들의 Y 좌표를 반전
+  //   final points = [
+  //     Vector2(0, -screenHeight), // 아래로 이동 (Y 좌표 반전)
+  //     Vector2(0, -screenHeight * 0.2),
+  //     Vector2(screenWidth * 0.2, -screenHeight * 0.1),
+  //     Vector2(screenWidth * 0.35, -screenHeight * 0.08),
+  //     Vector2(screenWidth * 0.46, -screenHeight * 0.06),
+  //     Vector2(screenWidth * 0.46, screenHeight * 0.5), // 상단으로 이동
+  //   ];
+  //
+  //   // WallComponent를 추가하여 경계를 화면 하단으로 배치
+  //   final leftWall = WallComponent(points: points, position: Vector2(0, 0));
+  //   add(leftWall);
+  // }
 
-  void createCaption(double screenWidth, double screenHeight) {
-    //텍스트 내용 설정
-    final captionText = planet.caption;
 
-    //create text component
-    final textPaint = TextPaint(
-      style: const TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold, color: Colors.white));
-
-    // 텍스트 컴포넌트 생성 및 위치 설정
-    final caption = TextComponent(
-    text: captionText,
-    textRenderer: textPaint,
-    position: Vector2(screenWidth / 2, screenHeight * 0.8),
-    anchor: Anchor.center, // 중앙 기준 배치
-    );
-
-    add(caption); // 게임 씬에 텍스트
-  }
+  // void createCaption(double screenWidth, double screenHeight) {
+  //   //텍스트 내용 설정
+  //   final captionText = planet.caption;
+  //
+  //   //create text component
+  //   final textPaint = TextPaint(
+  //     style: const TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold, color: Colors.white));
+  //
+  //   // 텍스트 컴포넌트 생성 및 위치 설정
+  //   final caption = TextComponent(
+  //   text: captionText,
+  //   textRenderer: textPaint,
+  //   position: Vector2(screenWidth / 2, screenHeight * 0.8),
+  //   anchor: Anchor.center, // 중앙 기준 배치
+  //   );
+  //
+  //   add(caption); // 게임 씬에 텍스트
+  // }
 
 
   @override

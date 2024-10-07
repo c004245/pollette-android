@@ -1,8 +1,10 @@
 import 'package:flame/components.dart';
 import 'package:flame_forge2d/body_component.dart';
+import 'package:flame_forge2d/flame_forge2d.dart' as forge2d;
 import 'package:flame_forge2d/flame_forge2d.dart';
 
-class WallComponent extends BodyComponent {
+
+class WallComponent extends forge2d.BodyComponent {
   final List<Vector2> points;
   final Vector2 position;
 
@@ -30,44 +32,34 @@ class WallComponent extends BodyComponent {
   }
 }
 
-void addRightGround(Forge2DGame game) {
-  final screenWidth = game.size.x;
-  final screenHeight = game.size.y;
 
-  //point
+void addRightGround(double screenWidth, double screenHeight, Forge2DGame game) {
+  // 오른쪽 벽 경계 좌표 설정
   final points = [
-    Vector2(0, screenHeight),
-    Vector2(0, screenHeight * 0.2),
-    Vector2(screenWidth * -0.2, screenHeight * 0.1),
-    Vector2(screenWidth * -0.35, screenHeight * 0.08),
-    Vector2(screenWidth * -0.46, screenHeight * 0.06),
-    Vector2(screenWidth * -0.46, -screenHeight * 0.5),
+    Vector2(0, 0), // 화면의 하단 왼쪽
+    Vector2(0, screenHeight * 0.8), // 상단을 향해 올라가는 경사
+    Vector2(screenWidth * -0.2, screenHeight * 0.9),
+    Vector2(screenWidth * -0.35, screenHeight * 0.92),
+    Vector2(screenWidth * -0.46, screenHeight * 0.94),
+    Vector2(screenWidth * -0.46, screenHeight), // 화면 상단에 맞게
   ];
 
-  //WallComponent
+  // WallComponent를 추가
   final rightWall = WallComponent(points: points, position: Vector2(screenWidth, 0));
   game.add(rightWall);
 }
 
-
-void addLeftGround(Forge2DGame game) {
-  final screenWidth = game.size.x;
-  final screenHeight = game.size.y;
-
-  // 점들 정의 (CGPoints에 해당하는 좌표)
+void addLeftGround(double screenWidth, double screenHeight, Forge2DGame game) {
+  // 왼쪽 벽 경계 좌표 설정
   final points = [
-    Vector2(0, screenHeight),
-    Vector2(0, screenHeight * 0.2),
-    Vector2(screenWidth * 0.2, screenHeight * 0.1),
-    Vector2(screenWidth * 0.35, screenHeight * 0.08),
-    Vector2(screenWidth * 0.46, screenHeight * 0.06),
-    Vector2(screenWidth * 0.46, -screenHeight * 0.5),
+    Vector2(0, 0), // 화면의 하단 오른쪽
+    Vector2(0, screenHeight * 0.8), // 상단을 향해 올라가는 경사
+    Vector2(screenWidth * 0.2, screenHeight * 0.9),
+    Vector2(screenWidth * 0.35, screenHeight * 0.92),
+    Vector2(screenWidth * 0.46, screenHeight * 0.94),
+    Vector2(screenWidth * 0.46, screenHeight), // 화면 상단에 맞게
   ];
-
   // WallComponent를 추가
-  final leftWall = WallComponent(
-    points: points,
-    position: Vector2(0, 0), // 왼쪽 위치 설정
-  );
+  final leftWall = WallComponent(points: points, position: Vector2(0, 0));
   game.add(leftWall);
 }
