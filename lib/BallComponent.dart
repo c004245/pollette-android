@@ -13,7 +13,7 @@ class Ballcomponent extends CircleComponent with ContactCallbacks {
 
   @override
   void beginContact(Object other, Contact contact) {
-    if (other is Blackholecomponent) {
+    if (other is BlackholeComponent) {
       //공이 블랙홀에 닿으면 제거
       removeFromParent();
     }

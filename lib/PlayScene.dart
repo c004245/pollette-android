@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:flame/components.dart' as flame;
 import 'package:flame/events.dart';
 import 'package:flame_forge2d/flame_forge2d.dart' as forge2d;
 import 'package:flame/game.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:pollette/BlackholeComponent.dart';
+import 'package:pollette/SpinnerComponent.dart';
 import 'package:pollette/WallComponent.dart';
 class PlayScene extends forge2d.Forge2DGame {
   late flame.CameraComponent cameraComponent;
@@ -46,7 +49,8 @@ class PlayScene extends forge2d.Forge2DGame {
     // //바닥과 블랙홀 추가
     // addGround();
 
-    addBlackhole(screenWidth);
+    addSpinner(this, screenWidth, screenHeight, pi);
+    addBlackhole(screenWidth, screenHeight);
 
     //공들 생성
     // createBalls();
@@ -69,10 +73,10 @@ class PlayScene extends forge2d.Forge2DGame {
   //   }
   // }
 
-
-  void addBlackhole(double screenWidth) {
-    final blackholePosition = Vector2(screenWidth / 2, 12);
-    final blackhole = Blackholecomponent(position: blackholePosition);
+  void addBlackhole(double screenWidth, double screenHeight) {
+    // 블랙홀을 화면의 최하단 중앙에 배치
+    final blackholePosition = Vector2(screenWidth / 2, screenHeight - 24); // 화면 하단 중앙 (블랙홀 높이 48의 절반인 24만큼 위로 올림)
+    final blackhole = BlackholeComponent(position: blackholePosition);
     add(blackhole);
   }
 
