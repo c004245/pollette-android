@@ -20,11 +20,12 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   late flame.CameraComponent cameraComponent;
   late flame.World cameraWorld;
 
+
+  final int numberOfBalls; // 생성할 공의 수
   final double gravity; // 중력 값
 
-  PlayScene({required this.gravity}) : super(gravity: Vector2(0, gravity));
+  PlayScene({required this.numberOfBalls, required this.gravity}) : super(gravity: Vector2(0, gravity));
 
-  final int numberOfBalls = 8; // 생성할 공의 수
   final List<Color> ballColors = [
     Colors.red,
     Colors.orange,

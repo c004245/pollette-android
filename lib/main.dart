@@ -14,7 +14,42 @@ import 'PlanetType.dart';
 /// If you press on a square, it will be removed.
 /// If you press anywhere else, another square will be added.
 void main() {
-  runApp(GameWidget(game: PlayScene(gravity: -PlanetType.earth.gravity)));
+
+  // runApp(GameWidget(game: GameScene()));
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Game App',
+      home: Scaffold(
+        body: GameWidget(
+          game: GameScene(),
+          overlayBuilderMap: {
+            'startOverlay': (BuildContext context, Game game) {
+              // overlay가 추가되면 바로 PlayScene으로 전환
+              final gameScene = game as GameScene;
+              final numberOfBalls = gameScene.numberOfPlayer;
+              Future.microtask(() {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GameWidget(game: PlayScene(numberOfBalls: numberOfBalls, gravity: PlanetType.earth.gravity)),
+                  ),
+                );
+              });
+
+              // 빈 Container 반환 (overlay는 즉시 실행되므로 UI는 필요 없음)
+              return Container();
+            },
+          },
+          initialActiveOverlays: const [],
+        ),
+      ),
+    );
+  }
 }
 
 class GameScene extends FlameGame with TapDetector {
@@ -47,8 +82,6 @@ class GameScene extends FlameGame with TapDetector {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-
-
 
 
     imageNode = SpriteComponent()
@@ -254,6 +287,18 @@ class GameScene extends FlameGame with TapDetector {
       increasePlayers();
     } else if (playButton.containsPoint(touchPosition)) {
       print("click play");
+
+
+
+      //   Navigator.push(
+      //   parentContext,
+      //   MaterialPageRoute(
+      //     builder: (context) => GameWidget(game: PlayScene(gravity: PlanetType.earth.gravity)), // PlayScene을 GameWidget으로 감싸서 반환
+      //   ),
+      // );
+
+      overlays.add('startOverlay');
+
     }
 
 
