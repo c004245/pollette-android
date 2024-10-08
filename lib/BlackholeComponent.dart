@@ -17,12 +17,13 @@ class BlackholeComponent extends BodyComponent with ContactCallbacks {
     // 블랙홀 이미지를 로드하여 표시
     final sprite = await Sprite.load('blackhole.png');
 
-    // SpriteComponent만 추가하여 이미지만 화면에 렌더링
+    // SpriteComponent 추가하여 이미지를 화면에 렌더링
     final blackhole = SpriteComponent(
       sprite: sprite,
-      size: Vector2(48, 48),  // 이미지 크기
-      position: position,     // 위치
-      anchor: Anchor.center,  // 중앙 기준 배치
+      position: Vector2(0, 0)
+      // size: Vector2(48, 48),  // 이미지 크기
+      // position: position - Vector2(24, 24),  // 중앙을 기준으로 위치 맞추기
+      // anchor: Anchor.center,  // 중앙 기준 배치
     );
 
     add(blackhole);  // 이미지를 BodyComponent에 추가

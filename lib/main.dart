@@ -8,12 +8,13 @@ import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:pollette/PlayScene.dart';
 
+import 'PlanetType.dart';
+
 /// This example simply adds a rotating white square on the screen.
 /// If you press on a square, it will be removed.
 /// If you press anywhere else, another square will be added.
 void main() {
-  // runApp(GameWidget(game: PlayScene(numberOfBalls: 9, planet: PlanetType.earth)));
-  runApp(GameWidget(game: PlayScene(gravity: 0)));
+  runApp(GameWidget(game: PlayScene(gravity: -PlanetType.earth.gravity)));
 }
 
 class GameScene extends FlameGame with TapDetector {
@@ -99,8 +100,6 @@ class GameScene extends FlameGame with TapDetector {
       ),
     );
     add(numberNode);
-
-
 
     // Minus Button
     decreaseNode = SpriteComponent()
