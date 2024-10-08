@@ -5,6 +5,8 @@ import 'package:flame_forge2d/contact_callbacks.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:pollette/BlackholeComponent.dart';
 
+ import 'dart:ui';
+ import 'package:flame_forge2d/contact_callbacks.dart';
 
  // 공은 블랙홀에 닿으면 사라짐
  class Ballcomponent extends BodyComponent with ContactCallbacks {

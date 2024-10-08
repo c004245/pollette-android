@@ -93,34 +93,33 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
     // 첫 번째 상자 그룹 추가
     for (int i = -5; i < 6; i++) {
-      print("addbox");
-      final position = Vector2(screenWidth / 2 - i * boxSize * 1.95,
-          screenHeight * 0.6); // 박스 높이 설정 (0.6에서 0.4로 수정)
+      final position = Vector2(screenWidth / 2 - i * boxSize * 1.95, screenHeight * 0.6);
       final rotation = Random().nextDouble() * pi * 2 - pi; // 랜덤 회전
       final box = BoxComponent(
         size: Vector2(boxSize, boxSize),
         position: position,
         rotation: rotation,
-        isDynamic: false,
+        isDynamic: false,  // 회전은 가능하지만 위치는 고정
       );
 
       game.add(box);
     }
 
+    // 두 번째 상자 그룹 추가
     for (int i = -4; i < 5; i++) {
-      final position = Vector2(screenWidth / 2 - i * boxSize * 1.9,
-          screenHeight * 0.5); // 박스 높이 설정 (0.5에서 0.3으로 수정)
+      final position = Vector2(screenWidth / 2 - i * boxSize * 1.9, screenHeight * 0.5);
       final rotation = Random().nextDouble() * pi * 2 - pi;
       final box = BoxComponent(
         size: Vector2(boxSize, boxSize),
         position: position,
         rotation: rotation,
-        isDynamic: false,
+        isDynamic: false,  // 회전은 가능하지만 위치는 고정
       );
 
       game.add(box);
     }
   }
+
 
   void createCaption(double screenWidth, double screenHeight) {
     //텍스트 내용 설정
@@ -163,23 +162,12 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
   @override
   void beginContact(Object other, Contact contact) {
-    // final fixtureA = contact.fixtureA;
-    // final fixtureB = contact.fixtureB;
-    //
-    // final bodyA = fixtureA.body.userData as Ballcomponent?;
-    // final bodyB = fixtureB.body.userData as Blackholecomponent?;
-    //
-    // //충돌한 물체가 공이나 블랙홀인가?
-    // if ((bodyA != null && bodyB != null)) {
-    //   bodyB?.removeFromParent(); // 블랙홀 제거
-    //   balls.remove(bodyB);  // 공 리스트에서 제거
-    //
-    //   // 남은 공이 하나인 경우
-    //   if (balls.length == 1) {
-    //     bodyA.removeFromParent(); // 남은 공 제거
-    //     balls.first.body.setGravityScale(0.0);  // 마지막 남은 공은 중력 영향을 받지 않도록 설정
-    //   }
-    // }
+    if (other is Ballcomponent && this is BoxComponent) {
+      // 공과 박스가 충돌하면 박스에 회전력을 적용
+      print("call!");
+      (this as BoxComponent).applyRotation(5.0);  // 적당한 회전력 적용
+    }
+    super.beginContact(other, contact);
   }
 
   @override

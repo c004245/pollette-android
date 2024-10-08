@@ -10,7 +10,7 @@ class PlanetType {
   });
 
   static PlanetType earth = PlanetType(
-    gravity: -9.81,
+    gravity: -20.81,
     duration: 1.0,
     caption: "창백한 푸른 점.",
   );
