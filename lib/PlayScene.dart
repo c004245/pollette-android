@@ -26,15 +26,17 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
   PlayScene({required this.numberOfBalls, required this.gravity}) : super(gravity: Vector2(0, gravity));
 
+
+
   final List<Color> ballColors = [
     Colors.red,
     Colors.orange,
     Colors.green,
     Colors.purple,
     Colors.yellow,
-    Colors.cyan,
     Colors.pink,
-    Colors.blue,
+    Colors.lightGreen,
+    Colors.blue
   ];
 
   @override
@@ -73,7 +75,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     for (int i = 0; i < numberOfBalls; i++) {
       final ball = Ballcomponent(
         // 공의 위치를 중앙에서 좌우로 퍼지도록 설정
-        position: Vector2(startX + i.toDouble() * offset, screenHeight * 0.25),
+        position: Vector2(startX + i.toDouble() * offset, screenHeight * 0.1),
         color: ballColors[i],
       );
       add(ball);
@@ -91,6 +93,9 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
   void addBoxes(Forge2DGame game, double screenWidth, double screenHeight) {
     final boxSize = screenWidth / 24;
+    const double ballOffset = 20; // 공 간격
+    final double ballTotalWidth = (numberOfBalls - 1) * ballOffset;
+    final double ballStartX = (screenWidth / 2) - (ballTotalWidth / 2);
 
     // 첫 번째 상자 그룹 추가
     for (int i = -5; i < 6; i++) {
@@ -118,6 +123,27 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
       );
 
       game.add(box);
+    }
+
+
+    // 공 추가 (createBalls 스타일 적용)
+    // for (int i = 0; i < numberOfBalls; i++) {
+    //   final ball = CircleComponent(
+    //     radius: 8.0,
+    //     position: Vector2(ballStartX + i * ballOffset, screenHeight * 0.25),
+    //     paint: Paint()..color = Color(0xFFFFFF.toInt()).withOpacity(1.0), // 랜덤 색상// 공은 중력의 영향을 받음
+    //   );
+    //
+    //   game.add(ball);
+    // }
+    for (int i = 0; i < 11; i++) {
+      final ball = Ballcomponent(
+        // 공의 위치를 중앙에서 좌우로 퍼지도록 설정
+            position: Vector2(ballStartX + i * ballOffset, screenHeight * 0.25),
+        color: Color(0xFFFFFF.toInt()).withOpacity(1.0), // 공의 색상
+      );
+
+      game.add(ball); // BallComponent를 게임에 추가
     }
   }
 
@@ -151,14 +177,6 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
-
-    // if (balls.length == 1) {
-    //   final ball = balls.first;
-    //
-    //   cameraComponent.follow(ball);
-    //
-    //   cameraComponent.viewfinder.zoom *= 0.98;
-    // }
   }
 
   @override
