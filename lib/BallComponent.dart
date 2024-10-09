@@ -17,20 +17,20 @@ import 'package:pollette/BlackholeComponent.dart';
 
    @override
    Body createBody() {
-     // 공의 물리적 바디 설정
-     final shape = CircleShape()..radius = 6;  // 반지름 6으로 원형 바디 설정
+     final shape = CircleShape()..radius = 6;
      final bodyDef = BodyDef(
-       type: BodyType.dynamic,  // 중력에 반응하도록 동적 바디 설정
+       type: BodyType.dynamic,
        position: position,
      );
 
-     // 공의 물리적 특성 (반발 계수, 밀도 등)
      final fixtureDef = FixtureDef(shape)
-       ..restitution = 0.8  // 튕김 효과
-       ..density = 1.0;     // 공의 밀도
+       ..restitution = 0.8
+       ..density = 1.0;
 
-     final body = world.createBody(bodyDef)
-       ..createFixture(fixtureDef);
+     final body = world.createBody(bodyDef);
+     body.createFixture(fixtureDef);
+
+     body.userData = this; // userData로 현재 객체를 설정
 
      return body;
    }
@@ -38,6 +38,7 @@ import 'package:pollette/BlackholeComponent.dart';
    @override
    void beginContact(Object other, Contact contact) {
      if (other is BlackholeComponent) {
+       print("delete call");
        // 공이 블랙홀에 닿으면 제거
        removeFromParent();
      }

@@ -43,6 +43,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   Future<void> onLoad() async {
     super.onLoad();
     // 화면의 크기 가져오기
+
     final screenWidth = size.x;
     final screenHeight = size.y;
 
@@ -60,7 +61,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     addRightGround(screenWidth, screenHeight, this);
     createCaption(screenWidth, screenHeight);
     addBoxes(this, screenWidth, screenHeight);
-    addSpinner(this, screenWidth, screenHeight, pi);
+    // addSpinner(this, screenWidth, screenHeight, pi /2 );
     addBlackhole(screenWidth, screenHeight);
 
     //공들 생성
@@ -84,9 +85,8 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
 
   void addBlackhole(double screenWidth, double screenHeight) {
-    // 블랙홀을 화면의 최하단 중앙에 배치
     final blackholePosition = Vector2(screenWidth / 2,
-        screenHeight - 24); // 화면 하단 중앙 (블랙홀 높이 48의 절반인 24만큼 위로 올림)
+        screenHeight - 24);
     final blackhole = BlackholeComponent(position: blackholePosition);
     add(blackhole);
   }
@@ -105,7 +105,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
         size: Vector2(boxSize, boxSize),
         position: position,
         rotation: rotation,
-        isDynamic: false,  // 회전은 가능하지만 위치는 고정
+        isDynamic: true,  // 회전은 가능하지만 위치는 고정
       );
 
       game.add(box);
@@ -119,23 +119,13 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
         size: Vector2(boxSize, boxSize),
         position: position,
         rotation: rotation,
-        isDynamic: false,  // 회전은 가능하지만 위치는 고정
+        isDynamic: true,  // 회전은 가능하지만 위치는 고정
       );
 
       game.add(box);
     }
 
 
-    // 공 추가 (createBalls 스타일 적용)
-    // for (int i = 0; i < numberOfBalls; i++) {
-    //   final ball = CircleComponent(
-    //     radius: 8.0,
-    //     position: Vector2(ballStartX + i * ballOffset, screenHeight * 0.25),
-    //     paint: Paint()..color = Color(0xFFFFFF.toInt()).withOpacity(1.0), // 랜덤 색상// 공은 중력의 영향을 받음
-    //   );
-    //
-    //   game.add(ball);
-    // }
     for (int i = 0; i < 11; i++) {
       final ball = Ballcomponent(
         // 공의 위치를 중앙에서 좌우로 퍼지도록 설정
@@ -178,13 +168,21 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   void update(double dt) {
     super.update(dt);
   }
-
   @override
   void beginContact(Object other, Contact contact) {
-    if (other is Ballcomponent && this is BoxComponent) {
-      // 공과 박스가 충돌하면 박스에 회전력을 적용
-      print("call!");
-      (this as BoxComponent).applyRotation(5.0);  // 적당한 회전력 적용
+    final fixtureA = contact.fixtureA.body.userData;
+    final fixtureB = contact.fixtureB.body.userData;
+
+    print("begincontact");
+
+    if (fixtureA is BoxComponent && fixtureB is Ballcomponent) {
+      print("Box and Ball collided");
+      fixtureA.applyRotation(5.0); // 충돌 시 회전력 적용
+    } else if (fixtureA is Ballcomponent && fixtureB is BoxComponent) {
+      print("Ball and Box collided");
+      fixtureB.applyRotation(5.0); // 충돌 시 회전력 적용
+    } else {
+      print("Unknown collision: fixtureA: $fixtureA, fixtureB: $fixtureB");
     }
     super.beginContact(other, contact);
   }
