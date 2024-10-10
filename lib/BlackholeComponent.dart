@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:flame/components.dart';
 import 'package:flame_forge2d/contact_callbacks.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 
-import 'BallComponent.dart';
 class BlackholeComponent extends BodyComponent with ContactCallbacks {
   final Vector2 position;
 
@@ -17,7 +14,6 @@ class BlackholeComponent extends BodyComponent with ContactCallbacks {
     final blackhole = SpriteComponent(
       sprite: sprite,
       size: Vector2(48, 48),
-
       anchor: Anchor.center
     );
     add(blackhole);
@@ -38,6 +34,7 @@ class BlackholeComponent extends BodyComponent with ContactCallbacks {
       ..isSensor = true;
     body.createFixture(fixtureDef);
 
+    body.userData = this;
     return body;
   }
 }

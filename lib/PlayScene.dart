@@ -139,12 +139,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
 
   void createCaption(double screenWidth, double screenHeight) {
-    //텍스트 내용 설정
-    // final captionText = planet.caption;
     final captionText = "창백한 푸른 점.";
-
-    //create text component
-    // TextPaint의 TextStyle을 올바르게 설정
     final textPaint = TextPaint(
       style: const TextStyle(
         fontSize: 24,
@@ -153,7 +148,6 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
         color: Colors.white,
       ),
     );
-    // 텍스트 컴포넌트 생성 및 위치 설정
     final caption = TextComponent(
       text: captionText,
       textRenderer: textPaint,
@@ -167,24 +161,6 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
-  }
-  @override
-  void beginContact(Object other, Contact contact) {
-    final fixtureA = contact.fixtureA.body.userData;
-    final fixtureB = contact.fixtureB.body.userData;
-
-    print("begincontact");
-
-    if (fixtureA is BoxComponent && fixtureB is Ballcomponent) {
-      print("Box and Ball collided");
-      fixtureA.applyRotation(5.0); // 충돌 시 회전력 적용
-    } else if (fixtureA is Ballcomponent && fixtureB is BoxComponent) {
-      print("Ball and Box collided");
-      fixtureB.applyRotation(5.0); // 충돌 시 회전력 적용
-    } else {
-      print("Unknown collision: fixtureA: $fixtureA, fixtureB: $fixtureB");
-    }
-    super.beginContact(other, contact);
   }
 
   @override
