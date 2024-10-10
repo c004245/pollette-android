@@ -4,12 +4,16 @@ import 'package:flame/components.dart';
 import 'package:flame_forge2d/contact_callbacks.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:pollette/BlackholeComponent.dart';
+
+import 'PlayScene.dart';
  // 공은 블랙홀에 닿으면 사라짐
  class Ballcomponent extends BodyComponent with ContactCallbacks {
    final Vector2 position;
    final Color color;
+   final PlayScene gameRef;
 
-   Ballcomponent({required this.position, required this.color});
+
+   Ballcomponent({required this.position, required this.color, required this.gameRef});
 
    @override
    Body createBody() {
@@ -37,6 +41,7 @@ import 'package:pollette/BlackholeComponent.dart';
        print("delete call");
        // 공이 블랙홀에 닿으면 제거
        removeFromParent();
+       gameRef.onBallRemoved(this);
      }
      super.beginContact(other, contact);
    }

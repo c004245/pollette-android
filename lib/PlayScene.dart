@@ -26,6 +26,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
   PlayScene({required this.numberOfBalls, required this.gravity}) : super(gravity: Vector2(0, gravity));
 
+  List<Ballcomponent> balls = [];
 
 
   final List<Color> ballColors = [
@@ -78,8 +79,10 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
         // 공의 위치를 중앙에서 좌우로 퍼지도록 설정
         position: Vector2(startX + i.toDouble() * offset, screenHeight * 0.1),
         color: ballColors[i],
+        gameRef: this
       );
       add(ball);
+      balls.add(ball);
     }
   }
 
@@ -131,6 +134,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
         // 공의 위치를 중앙에서 좌우로 퍼지도록 설정
             position: Vector2(ballStartX + i * ballOffset, screenHeight * 0.25),
         color: Color(0xFFFFFF.toInt()).withOpacity(1.0), // 공의 색상
+        gameRef: this
       );
 
       game.add(ball); // BallComponent를 게임에 추가
@@ -159,10 +163,23 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   }
 
   @override
-  void update(double dt) {
-    super.update(dt);
+  void onBallRemoved(Ballcomponent ball) {
+    balls.remove(ball);  // 공을 리스트에서 제거
+    print('Ball removed. Remaining balls: ${balls.length}');
   }
 
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    // 공이 하나 남았을 때 줌 인 애니메이션
+    if (balls.length == 1) {
+      print("balls length 1");
+      // final zoomInAction = cameraComponent.zoomTo(Vector2(0.3, 0.3), 1.5); // 줌 인 애니메이션
+      // cameraComponent.follow(balls.first); // 남은 공을 카메라가 따라가도록 설정
+      // cameraComponent.run(zoomInAction); // 줌 인 애니메이션 실행
+    }
+  }
   @override
   void onTapUp(TapUpInfo info) {
     // if (balls.length == 1) {
@@ -171,4 +188,6 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     //   removeAllActions(); // 모든 액션 제거
     // }
   }
+
+
 }
