@@ -25,7 +25,7 @@ import 'PlayScene.dart';
      );
 
      final fixtureDef = FixtureDef(shape)
-       ..restitution = 0.8
+       ..restitution = 1.0
        ..density = 1.0;
 
      final body = world.createBody(bodyDef);

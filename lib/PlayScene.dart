@@ -53,7 +53,6 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
     // 카메라 설정
     cameraComponent = flame.CameraComponent(world: cameraWorld); // 카메라 생성
-    cameraComponent.viewfinder.position =
         Vector2(screenWidth / 2, screenHeight / 2); // 중앙 위치 설정
     add(cameraComponent); // 카메라 추가
 
@@ -62,7 +61,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     addRightGround(screenWidth, screenHeight, this);
     createCaption(screenWidth, screenHeight);
     addBoxes(this, screenWidth, screenHeight);
-    // addSpinner(this, screenWidth, screenHeight, pi /2 );
+    addSpinner(this, screenWidth, screenHeight, pi /3 );
     addBlackhole(screenWidth, screenHeight);
 
     //공들 생성
@@ -70,21 +69,24 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   }
 
   void createBalls(double screenWidth, double screenHeight) {
-    const double offset = 20;
-    final double totalWidth = (numberOfBalls - 1) * offset;
-    final double startX = (screenWidth / 2) - (totalWidth / 2);
+    const double offset = 4; // 각 공 사이의 간격을 좁힘
+    final double startX = screenWidth / 2; // 화면 중앙을 기준으로 시작
 
     for (int i = 0; i < numberOfBalls; i++) {
+      // 공의 x 좌표를 중앙에서 좌우 대칭으로 설정
+      final double xPos = startX + (i - (numberOfBalls - 1) / 2) * offset;
+
       final ball = Ballcomponent(
-        // 공의 위치를 중앙에서 좌우로 퍼지도록 설정
-        position: Vector2(startX + i.toDouble() * offset, screenHeight * 0.1),
+        position: Vector2(xPos, screenHeight * 0.1),
         color: ballColors[i],
-        gameRef: this
+        gameRef: this,
       );
       add(ball);
       balls.add(ball);
     }
   }
+
+
 
 
   void addBlackhole(double screenWidth, double screenHeight) {
@@ -96,10 +98,10 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
   void addBoxes(Forge2DGame game, double screenWidth, double screenHeight) {
     final boxSize = screenWidth / 24;
-    const double ballOffset = 20; // 공 간격
+    const double ballOffset = 8; // 공 간격
     final double ballTotalWidth = (numberOfBalls - 1) * ballOffset;
-    final double ballStartX = (screenWidth / 2) - (ballTotalWidth / 2);
-
+    // final double ballStartX = (screenWidth / 2) - (ballTotalWidth / 2);
+    final double ballStartX = screenWidth / 2; // 화면
     // 첫 번째 상자 그룹 추가
     for (int i = -5; i < 6; i++) {
       final position = Vector2(screenWidth / 2 - i * boxSize * 1.95, screenHeight * 0.6);
@@ -129,18 +131,19 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     }
 
 
+
     for (int i = 0; i < 11; i++) {
+      final double xPos = ballStartX + (i - (numberOfBalls - 1) / 2) * ballOffset;
       final ball = Ballcomponent(
         // 공의 위치를 중앙에서 좌우로 퍼지도록 설정
-            position: Vector2(ballStartX + i * ballOffset, screenHeight * 0.25),
+        position: Vector2(xPos, screenHeight * 0.25),
         color: Color(0xFFFFFF.toInt()).withOpacity(1.0), // 공의 색상
-        gameRef: this
+        gameRef: this,
       );
 
       game.add(ball); // BallComponent를 게임에 추가
     }
   }
-
 
   void createCaption(double screenWidth, double screenHeight) {
     final captionText = "창백한 푸른 점.";
@@ -175,9 +178,13 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     // 공이 하나 남았을 때 줌 인 애니메이션
     if (balls.length == 1) {
       print("balls length 1");
-      // final zoomInAction = cameraComponent.zoomTo(Vector2(0.3, 0.3), 1.5); // 줌 인 애니메이션
-      // cameraComponent.follow(balls.first); // 남은 공을 카메라가 따라가도록 설정
-      // cameraComponent.run(zoomInAction); // 줌 인 애니메이션 실행
+      final remainingBall = balls.first;
+
+      // 카메라가 남은 공을 따라가도록 설정
+      cameraComponent.follow(remainingBall);
+
+      cameraComponent.viewfinder.zoom = 0.3; // 줌 인 (0.3 배율)
+      cameraComponent.viewfinder.position = remainingBall.body.position; // 남은 공
     }
   }
   @override
