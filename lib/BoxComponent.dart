@@ -2,7 +2,8 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
-class BoxComponent extends BodyComponent {
+import 'package:pollette/BallComponent.dart';
+class BoxComponent extends BodyComponent with ContactCallbacks {
   final Vector2 size;
   final Vector2 position;
   final double rotation;
@@ -59,6 +60,18 @@ class BoxComponent extends BodyComponent {
   }
 
   void applyRotation(double force) {
-    body.applyAngularImpulse(force);
+    // 수동으로 회전 각도를 조정
+    body.angularVelocity = force; // 충돌 시 회전 속도 설정
+  }
+
+
+  @override
+  void beginContact(Object other, Contact contact) {
+    if (other is Ballcomponent) {
+      print('Box collided with ball');
+      applyRotation(2.0);
+    }
+
+    super.beginContact(other, contact);
   }
 }
