@@ -24,7 +24,8 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   final int numberOfBalls; // 생성할 공의 수
   final double gravity; // 중력 값
 
-  PlayScene({required this.numberOfBalls, required this.gravity}) : super(gravity: Vector2(0, gravity));
+  PlayScene({required this.numberOfBalls, required this.gravity})
+      : super(gravity: Vector2(0, gravity));
 
   List<Ballcomponent> balls = [];
 
@@ -53,15 +54,16 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
     // 카메라 설정
     cameraComponent = flame.CameraComponent(world: cameraWorld); // 카메라 생성
-        Vector2(screenWidth / 2, screenHeight / 2); // 중앙 위치 설정
-    add(cameraComponent); // 카메라 추가
+    Vector2(screenWidth / 2, screenHeight / 2); // 중앙 위치 설정
+    add(cameraComponent); // 카메라 추
+    cameraComponent.viewfinder.zoom = 1.0; // 가
 
     // 왼쪽 및 오른쪽 벽(경계) 추가
     addLeftGround(screenWidth, screenHeight, this);
     addRightGround(screenWidth, screenHeight, this);
     createCaption(screenWidth, screenHeight);
     addBoxes(this, screenWidth, screenHeight);
-    addSpinner(this, screenWidth, screenHeight, pi /3 );
+    addSpinner(this, screenWidth, screenHeight, pi / 3);
     addBlackhole(screenWidth, screenHeight);
 
     //공들 생성
@@ -87,8 +89,6 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   }
 
 
-
-
   void addBlackhole(double screenWidth, double screenHeight) {
     final blackholePosition = Vector2(screenWidth / 2,
         screenHeight - 24);
@@ -104,13 +104,14 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     final double ballStartX = screenWidth / 2; // 화면
     // 첫 번째 상자 그룹 추가
     for (int i = -5; i < 6; i++) {
-      final position = Vector2(screenWidth / 2 - i * boxSize * 1.95, screenHeight * 0.6);
+      final position = Vector2(
+          screenWidth / 2 - i * boxSize * 1.95, screenHeight * 0.6);
       final rotation = Random().nextDouble() * pi * 2 - pi; // 랜덤 회전
       final box = BoxComponent(
         size: Vector2(boxSize, boxSize),
         position: position,
         rotation: rotation,
-        isDynamic: true,  // 회전은 가능하지만 위치는 고정
+        isDynamic: true, // 회전은 가능하지만 위치는 고정
       );
 
       game.add(box);
@@ -118,22 +119,23 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
     // 두 번째 상자 그룹 추가
     for (int i = -4; i < 5; i++) {
-      final position = Vector2(screenWidth / 2 - i * boxSize * 1.9, screenHeight * 0.5);
+      final position = Vector2(
+          screenWidth / 2 - i * boxSize * 1.9, screenHeight * 0.5);
       final rotation = Random().nextDouble() * pi * 2 - pi;
       final box = BoxComponent(
         size: Vector2(boxSize, boxSize),
         position: position,
         rotation: rotation,
-        isDynamic: true,  // 회전은 가능하지만 위치는 고정
+        isDynamic: true, // 회전은 가능하지만 위치는 고정
       );
 
       game.add(box);
     }
 
 
-
     for (int i = 0; i < 11; i++) {
-      final double xPos = ballStartX + (i - (numberOfBalls - 1) / 2) * ballOffset;
+      final double xPos = ballStartX +
+          (i - (numberOfBalls - 1) / 2) * ballOffset;
       final ball = Ballcomponent(
         // 공의 위치를 중앙에서 좌우로 퍼지도록 설정
         position: Vector2(xPos, screenHeight * 0.25),
@@ -167,7 +169,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
   @override
   void onBallRemoved(Ballcomponent ball) {
-    balls.remove(ball);  // 공을 리스트에서 제거
+    balls.remove(ball); // 공을 리스트에서 제거
     print('Ball removed. Remaining balls: ${balls.length}');
   }
 
@@ -177,16 +179,26 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
     // 공이 하나 남았을 때 줌 인 애니메이션
     if (balls.length == 1) {
-      print("balls length 1");
+      print("ball only 1");
       final remainingBall = balls.first;
 
-      // 카메라가 남은 공을 따라가도록 설정
-      cameraComponent.follow(remainingBall);
+      // 중력 제거
+      remainingBall.body.gravityScale = Vector2(0, 0); // 중력 제거
 
-      cameraComponent.viewfinder.zoom = 0.3; // 줌 인 (0.3 배율)
-      cameraComponent.viewfinder.position = remainingBall.body.position; // 남은 공
+      // // 카메라 줌 적용
+      // cameraComponent.viewfinder.zoom = cameraComponent.viewfinder.zoom +
+      //     (0.3 - cameraComponent.viewfinder.zoom) * 0.1 * dt;
+      //
+      // // 카메라가 남은 공의 위치로 이동
+      // cameraComponent.viewfinder.position = cameraComponent.viewfinder.position +
+      //     (remainingBall.body.position - cameraComponent.viewfinder.position) * 0.1 * dt;
+
+      print("reom -> ${remainingBall}");
+      showBallOverlay(remainingBall);
+
     }
   }
+
   @override
   void onTapUp(TapUpInfo info) {
     // if (balls.length == 1) {
@@ -196,5 +208,8 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     // }
   }
 
-
+  void showBallOverlay(Ballcomponent remainingBall) {
+    overlays.add('BallOverlay'); // 오버레이 추가
+    // remainingBall 정보를 전달하는 다른 방법을 고려할 수 있습니다.
+  }
 }

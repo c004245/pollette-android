@@ -29,20 +29,44 @@ class MyApp extends StatelessWidget {
           game: GameScene(),
           overlayBuilderMap: {
             'startOverlay': (BuildContext context, Game game) {
-              // overlay가 추가되면 바로 PlayScene으로 전환
               final gameScene = game as GameScene;
               final numberOfBalls = gameScene.numberOfPlayer;
               Future.microtask(() {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GameWidget(game: PlayScene(numberOfBalls: numberOfBalls, gravity: PlanetType.earth.gravity)),
+                    builder: (context) => GameWidget(
+                      game: PlayScene(
+                        numberOfBalls: numberOfBalls,
+                        gravity: PlanetType.earth.gravity,
+                      ),
+                      // PlayScene에서도 overlayBuilderMap을 전달해야 합니다.
+                      overlayBuilderMap: {
+                        'BallOverlay': (BuildContext context, PlayScene game) {
+                          final remainingBall = game.balls.first;
+
+                          return Center(
+                            child: AlertDialog(
+                              title: Text('공이 하나 남았습니다!'),
+                              content: Text('남은 공: ${remainingBall.toString()}'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('확인'),
+                                  onPressed: () {
+                                    game.overlays.remove('BallOverlay');
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      },
+                    ),
                   ),
                 );
               });
 
-              // 빈 Container 반환 (overlay는 즉시 실행되므로 UI는 필요 없음)
-              return Container();
+              return Container(); // 빈 Container 반환
             },
           },
           initialActiveOverlays: const [],
