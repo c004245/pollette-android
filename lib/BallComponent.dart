@@ -53,4 +53,10 @@ import 'PlayScene.dart';
      final paint = Paint()..color = color;
      canvas.drawCircle(Offset.zero, 6, paint);  // 반지름 6으로 원 그리기
    }
+
+   @override
+   String toString() {
+     return 'Ball(position: ${position.toString()}, color: $color)';
+   }
  }
+

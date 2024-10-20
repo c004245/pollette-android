@@ -8,6 +8,7 @@ import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:pollette/PlayScene.dart';
 
+import 'BallPainter.dart';
 import 'PlanetType.dart';
 
 /// This example simply adds a rotating white square on the screen.
@@ -42,24 +43,47 @@ class MyApp extends StatelessWidget {
                       ),
                       // PlayScene에서도 overlayBuilderMap을 전달해야 합니다.
                       overlayBuilderMap: {
-                        'BallOverlay': (BuildContext context, PlayScene game) {
-                          final remainingBall = game.balls.first;
+                        'BallOverlay': (BuildContext context, Game game) {
+                          final gameScene = game as PlayScene;
+                          final remainingBall = gameScene.balls.first;
 
                           return Center(
                             child: AlertDialog(
-                              title: Text('공이 하나 남았습니다!'),
-                              content: Text('남은 공: ${remainingBall.toString()}'),
+                              title: Text(
+                                '당첨!',
+                                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // 색상에 맞는 원 그리기
+                                  CustomPaint(
+                                    size: Size(100, 100), // 원의 크기 설정
+                                    painter: BallPainter(remainingBall.color), // 공의 색상 사용
+                                  ),
+                                  SizedBox(height: 20), // 여백 추가
+                                  Text(
+                                    '남은 공의 색상: ${remainingBall.color}',
+                                    style: TextStyle(fontSize: 16),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                               actions: <Widget>[
-                                TextButton(
-                                  child: Text('확인'),
-                                  onPressed: () {
-                                    game.overlays.remove('BallOverlay');
-                                  },
+                                Center(
+                                  child: TextButton(
+                                    child: Text('확인'),
+                                    onPressed: () {
+                                      game.overlays.remove('BallOverlay');
+                                    },
+                                  ),
                                 ),
                               ],
                             ),
                           );
                         },
+
                       },
                     ),
                   ),
