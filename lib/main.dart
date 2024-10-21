@@ -34,14 +34,18 @@ class MyApp extends StatelessWidget {
             'startOverlay': (BuildContext context, Game game) {
               final gameScene = game as GameScene;
               final numberOfBalls = gameScene.numberOfPlayer;
+              final selectedPlanet = gameScene.currentPlanet; // 현재 선택된 행성 가져오기
+
               Future.microtask(() {
+                game.overlays.remove('startOverlay');
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => GameWidget(
                       game: PlayScene(
                         numberOfBalls: numberOfBalls,
-                        gravity: PlanetType.earth.gravity,
+                        planet: selectedPlanet,
                       ),
                       // PlayScene에서도 overlayBuilderMap을 전달해야 합니다.
                       overlayBuilderMap: {
@@ -72,6 +76,8 @@ class MyApp extends StatelessWidget {
                                     child: Text('확인'),
                                     onPressed: () {
                                       game.overlays.remove('BallOverlay');
+                                      Navigator.pop(context);
+
                                     },
                                   ),
                                 ),
@@ -110,7 +116,14 @@ class GameScene extends FlameGame with TapDetector {
 
   int planetIdx = 0;
 
-  final List<String> planetTypes = ['earth.png', 'moon.png', 'mars.png', 'uranus.png']; // 행성 이미지 파일 이름 리스트
+  // PlanetType 리스트
+  final List<PlanetType> planetTypes = [
+    PlanetType.earth,
+    PlanetType.mars,
+    PlanetType.moon,
+    PlanetType.uranus,
+  ];
+
 
   final List<Color> balls = [Colors.red, Colors.orange];
   final List<Color> colorSet = [
@@ -122,6 +135,7 @@ class GameScene extends FlameGame with TapDetector {
     Colors.blue
   ];
 
+  PlanetType get currentPlanet => planetTypes[planetIdx];
 
   @override
   Future<void> onLoad() async {
@@ -129,7 +143,7 @@ class GameScene extends FlameGame with TapDetector {
 
 
     imageNode = SpriteComponent()
-      ..sprite = await loadSprite(planetTypes[planetIdx])
+      ..sprite = await loadSprite(currentPlanet.imageFilename)
       ..size = Vector2(96, 96)
       ..position = Vector2((size.x / 2) - (96 / 2), size.y / 4); // 이미지 너비의 절반을 뺌
     add(imageNode);
@@ -308,7 +322,7 @@ class GameScene extends FlameGame with TapDetector {
   void updatePlanet() async {
     remove(imageNode);
     imageNode = SpriteComponent()
-      ..sprite = await loadSprite(planetTypes[planetIdx]) // 새로운 행성 로드
+      ..sprite = await loadSprite(currentPlanet.imageFilename) // 새로운 행성 로드
       ..size = Vector2(96, 96) // 행성 크기 설정
       ..position = Vector2((size.x / 2) - (96 / 2), size.y / 4); // 이미지 너비의 절반을 뺌
 
@@ -335,16 +349,6 @@ class GameScene extends FlameGame with TapDetector {
       increasePlayers();
     } else if (playButton.containsPoint(touchPosition)) {
       print("click play");
-
-
-
-      //   Navigator.push(
-      //   parentContext,
-      //   MaterialPageRoute(
-      //     builder: (context) => GameWidget(game: PlayScene(gravity: PlanetType.earth.gravity)), // PlayScene을 GameWidget으로 감싸서 반환
-      //   ),
-      // );
-
       overlays.add('startOverlay');
 
     }

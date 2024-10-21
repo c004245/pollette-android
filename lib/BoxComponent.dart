@@ -47,7 +47,7 @@ class BoxComponent extends BodyComponent with ContactCallbacks {
 
     final fixtureDef = FixtureDef(shape)
       ..density = 5.0
-      ..friction = 0.3
+      ..friction = 0.0
       ..restitution = 3.0;
 
     body.createFixture(fixtureDef);

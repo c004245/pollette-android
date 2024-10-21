@@ -10,6 +10,7 @@ import 'package:flame/game.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
 import 'package:pollette/BlackholeComponent.dart';
+import 'package:pollette/PlanetType.dart';
 import 'package:pollette/SpinnerComponent.dart';
 import 'package:pollette/WallComponent.dart';
 
@@ -22,10 +23,10 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
 
   final int numberOfBalls; // 생성할 공의 수
-  final double gravity; // 중력 값
+  final PlanetType planet; // 중력 값
 
-  PlayScene({required this.numberOfBalls, required this.gravity})
-      : super(gravity: Vector2(0, gravity));
+  PlayScene({required this.numberOfBalls, required this.planet})
+      : super(gravity: Vector2(0, planet.gravity));
 
   List<Ballcomponent> balls = [];
 
@@ -148,7 +149,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
   }
 
   void createCaption(double screenWidth, double screenHeight) {
-    final captionText = "창백한 푸른 점.";
+    final captionText = planet.caption;
     final textPaint = TextPaint(
       style: const TextStyle(
         fontSize: 24,

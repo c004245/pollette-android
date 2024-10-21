@@ -61,7 +61,7 @@ class SpinnerComponent extends BodyComponent {
   @override
   void update(double dt) {
     // 회전 속도를 유지하기 위해 angularVelocity 계속 적용
-    body.angularVelocity = rotationSpeed;
+    body.angularVelocity = rotationSpeed * 0.5;
     super.update(dt);
   }
 }
