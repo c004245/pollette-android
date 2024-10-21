@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
                             child: AlertDialog(
                               title: Text(
                                 '당첨!',
-                                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
                               ),
                               content: Column(
@@ -73,7 +73,8 @@ class MyApp extends StatelessWidget {
                               actions: <Widget>[
                                 Center(
                                   child: TextButton(
-                                    child: Text('확인'),
+                                    child: Text('확인',
+                                      style: TextStyle(color: Colors.black, fontSize: 15, fontFamily: "Galmuri11", fontWeight: FontWeight.bold),),
                                     onPressed: () {
                                       game.overlays.remove('BallOverlay');
                                       Navigator.pop(context);

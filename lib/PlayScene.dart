@@ -69,7 +69,31 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
     //공들 생성
     createBalls(screenWidth, screenHeight);
+    addPlanetImage(screenWidth, screenHeight);
+
+
   }
+
+  void addPlanetImage(double screenWidth, double screenHeight) async {
+    // PlanetType의 imageFilename을 사용하여 이미지 로드
+    final planetImage = await loadSprite(planet.imageFilename);
+
+    // 이미지 크기 설정 (원하는 크기로 조정)
+    final planetSize = Vector2(64, 64);  // 예시로 64x64 크기 설정
+
+    // 오른쪽 상단에 배치 (화면의 오른쪽 너비에서 이미지 너비만큼 뺌)
+    final planetPosition = Vector2(screenWidth - planetSize.x - 20, 40);  // 오른쪽 여백 20, 상단 여백 20
+
+    // SpriteComponent로 이미지 생성
+    final planetImageComponent = SpriteComponent(
+      sprite: planetImage,
+      size: planetSize,
+      position: planetPosition,
+    );
+
+    add(planetImageComponent);  // 게임에 이미지 컴포넌트 추가
+  }
+
 
   void createBalls(double screenWidth, double screenHeight) {
     const double offset = 4; // 각 공 사이의 간격을 좁힘
@@ -134,7 +158,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     }
 
 
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 11; i++) {
       final double xPos = ballStartX +
           (i - (numberOfBalls - 1) / 2) * ballOffset;
       final ball = Ballcomponent(
