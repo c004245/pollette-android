@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -10,6 +11,7 @@ import 'package:pollette/PlayScene.dart';
 
 import 'BallPainter.dart';
 import 'PlanetType.dart';
+import 'RoundedRectangleButton.dart';
 
 /// This example simply adds a rotating white square on the screen.
 /// If you press on a square, it will be removed.
@@ -62,12 +64,6 @@ class MyApp extends StatelessWidget {
                                     size: Size(100, 100), // 원의 크기 설정
                                     painter: BallPainter(remainingBall.color), // 공의 색상 사용
                                   ),
-                                  SizedBox(height: 20), // 여백 추가
-                                  Text(
-                                    '남은 공의 색상: ${remainingBall.color}',
-                                    style: TextStyle(fontSize: 16),
-                                    textAlign: TextAlign.center,
-                                  ),
                                 ],
                               ),
                               actions: <Widget>[
@@ -108,7 +104,7 @@ class GameScene extends FlameGame with TapDetector {
   late SpriteComponent increaseNode;
   late TextComponent numberNode;
   late TextComponent ballLabel;
-  late RectangleComponent playButton;
+  late RoundedRectangleButton playButton;
   int numberOfPlayer = 2;
 
 
@@ -151,14 +147,14 @@ class GameScene extends FlameGame with TapDetector {
     // Left Arrow Button
     leftNode = SpriteComponent()
       ..sprite = await loadSprite('left.png') // Chevron 이미지 사용
-      ..size = Vector2(50, 50)
+      ..size = Vector2(40, 40)
       ..position = Vector2(10, imageNode.position.y + (imageNode.size.y / 2) - (50 / 2)); // 좌측 마진 10, imageNode의 세로 가운데에 맞춤
+      // ..angle = pi; // 180도 회전
     add(leftNode);
-
     // Right Arrow Button
     rightNode = SpriteComponent()
       ..sprite = await loadSprite('right.png') // Chevron 이미지 사용
-      ..size = Vector2(50, 50)
+      ..size = Vector2(40, 40)
       ..position = Vector2(size.x - 60, imageNode.position.y + (imageNode.size.y / 2) - (50 / 2)); // 우측 마진 10, imageNode의 세로 가운데
     add(rightNode);
 
@@ -185,14 +181,14 @@ class GameScene extends FlameGame with TapDetector {
     // Minus Button
     decreaseNode = SpriteComponent()
       ..sprite = await loadSprite('left.png')
-      ..size = Vector2(50, 50)
+      ..size = Vector2(40, 40)
       ..position = Vector2(10, numberNode.position.y + (numberNode.size.y / 2) - (50 / 2)); // 좌측 마진 10, imageNode의 세로 가운데에 맞춤
     add(decreaseNode);
     //
     // Plus Button
     increaseNode = SpriteComponent()
       ..sprite = await loadSprite('right.png')
-      ..size = Vector2(50, 50)
+      ..size = Vector2(40, 40)
       ..position = Vector2(size.x - 60,  numberNode.position.y + (numberNode.size.y / 2) - (50 / 2)); // 우측 마진 10, imageNode의 세로 가운데
     add(increaseNode);
 
@@ -203,32 +199,36 @@ class GameScene extends FlameGame with TapDetector {
 
     add(ballLabel);
 
-    // Start 버튼
-    playButton = RectangleComponent(
-      size: Vector2(250, 60), // 버튼 크기 설정
-      position: Vector2(
-          (size.x / 2) - (250 / 2), // 수평 정중앙에 맞추기
-          size.y - 96 - 50 // 하단 마진 50 적용, 버튼 높이 고려
-      ),
-      paint: Paint()..color = Colors.green,
-    );
+
+
+    playButton = RoundedRectangleButton(
+      width: 250,
+      height: 60,
+      radius: 16,
+      color: Colors.lightBlueAccent,
+      position: Vector2(size.x / 2, size.y - 96 - 50), // 화면의 좌우 정중앙에 배치
+
+    )
+      ..anchor = Anchor.center; // 중심을 기준으로 위치 설정
     add(playButton);
 
     final playLabel = TextComponent(
       text: "START",
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          fontSize: 30,
-          fontFamily: "Galmuri11-Bold",
-        ),
-      ),
-      // playButton의 정중앙에 맞추기
-      position: Vector2(
-        playButton.position.x + (playButton.size.x / 2) - (6 * 24 / 2), // 'START' 텍스트 길이를 고려한 중앙 배치
-        playButton.position.y + (playButton.size.y / 2) - (48 / 2), // 버튼 높이 기준 중앙에 텍스트 맞춤
-      ),
-    );
-    add(playLabel);
+      // textRenderer: TextPaint(
+      //   style: const TextStyle(
+      //     fontSize: 30,
+      //     fontFamily: "Galmuri11-Bold",
+      //   ),
+      // ),
+      textRenderer: TextPaint(style: const TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold)),
+
+    )
+      ..anchor = Anchor.center // 텍스트의 중심을 기준으로 위치 설정
+      ..position = playButton.size / 2; // 버튼의 중심에 맞춤
+    playButton.add(playLabel); // 버튼에 텍스트 추가
+
+    // 버튼에 텍스트 추가
+
   }
 
   void updateBalls() {

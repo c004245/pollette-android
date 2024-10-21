@@ -48,11 +48,11 @@ class BoxComponent extends BodyComponent with ContactCallbacks {
     final fixtureDef = FixtureDef(shape)
       ..density = 5.0
       ..friction = 0.3
-      ..restitution = 0.5;
+      ..restitution = 3.0;
 
     body.createFixture(fixtureDef);
     body.angularDamping = 5.0;
-    body.linearDamping = 100.0;
+    body.linearDamping = 10.0;
 
     body.userData = this; // userData로 현재 객체를 설정
 
@@ -61,7 +61,7 @@ class BoxComponent extends BodyComponent with ContactCallbacks {
 
   void applyRotation(double force) {
     // 수동으로 회전 각도를 조정
-    body.angularVelocity = force; // 충돌 시 회전 속도 설정
+    body.angularVelocity = force * 2.0; // 충돌 시 회전 속도 설정
   }
 
 

@@ -98,7 +98,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
 
   void addBoxes(Forge2DGame game, double screenWidth, double screenHeight) {
     final boxSize = screenWidth / 24;
-    const double ballOffset = 8; // 공 간격
+    const double ballOffset = 4; // 공 간격
     final double ballTotalWidth = (numberOfBalls - 1) * ballOffset;
     // final double ballStartX = (screenWidth / 2) - (ballTotalWidth / 2);
     final double ballStartX = screenWidth / 2; // 화면
@@ -133,7 +133,7 @@ class PlayScene extends forge2d.Forge2DGame with forge2d.ContactCallbacks {
     }
 
 
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < 15; i++) {
       final double xPos = ballStartX +
           (i - (numberOfBalls - 1) / 2) * ballOffset;
       final ball = Ballcomponent(
