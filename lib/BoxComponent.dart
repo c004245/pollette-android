@@ -61,7 +61,7 @@ class BoxComponent extends BodyComponent with ContactCallbacks {
 
   void applyRotation(double force) {
     // 수동으로 회전 각도를 조정
-    body.angularVelocity = force * 2.0; // 충돌 시 회전 속도 설정
+    body.angularVelocity = force; // 충돌 시 회전 속도 설정
   }
 
 

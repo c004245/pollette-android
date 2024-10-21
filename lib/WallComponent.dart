@@ -24,7 +24,7 @@ class WallComponent extends forge2d.BodyComponent {
     edgeShape.createChain(points);
 
     final fixtureDef = FixtureDef(edgeShape)
-    ..restitution = 13.0;
+    ..restitution = 2.0;
 
     body.createFixture(fixtureDef);
 
