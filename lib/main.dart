@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'dart:math';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
@@ -12,13 +14,17 @@ import 'package:pollette/PlayScene.dart';
 import 'BallPainter.dart';
 import 'PlanetType.dart';
 import 'RoundedRectangleButton.dart';
+import 'firebase_options.dart';
 
 /// This example simply adds a rotating white square on the screen.
 /// If you press on a square, it will be removed.
 /// If you press anywhere else, another square will be added.
-void main() {
+void main() async {
 
   // runApp(GameWidget(game: GameScene()));
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(MyApp());
 }
 
@@ -32,6 +38,8 @@ class MyApp extends StatelessWidget {
           game: GameScene(),
           overlayBuilderMap: {
             'startOverlay': (BuildContext context, Game game) {
+              FirebaseCrashlytics.instance.crash();
+
               final gameScene = game as GameScene;
               final numberOfBalls = gameScene.numberOfPlayer;
               final selectedPlanet = gameScene.currentPlanet; // 현재 선택된 행성 가져오기

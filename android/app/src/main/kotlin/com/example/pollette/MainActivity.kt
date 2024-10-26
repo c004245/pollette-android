@@ -1,4 +1,4 @@
-package com.example.pollette
+package kr.co.hyunwook.pollette
 
 import io.flutter.embedding.android.FlutterActivity
 
