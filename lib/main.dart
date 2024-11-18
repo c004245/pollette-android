@@ -38,8 +38,6 @@ class MyApp extends StatelessWidget {
           game: GameScene(),
           overlayBuilderMap: {
             'startOverlay': (BuildContext context, Game game) {
-              FirebaseCrashlytics.instance.crash();
-
               final gameScene = game as GameScene;
               final numberOfBalls = gameScene.numberOfPlayer;
               final selectedPlanet = gameScene.currentPlanet; // 현재 선택된 행성 가져오기

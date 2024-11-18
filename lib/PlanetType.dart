@@ -11,7 +11,7 @@ class PlanetType {
     required this.imageFilename,
   });
 
-  static const double scalingFactor = 81.64; // 스케일링 팩터 (40.82 * 2)
+  static const double scalingFactor = 90; // 스케일링 팩터 (40.82 * 2)
 
   static const PlanetType earth = PlanetType(
     gravity: 9.81 * scalingFactor, // 9.81 * 81.64 ≈ 800
