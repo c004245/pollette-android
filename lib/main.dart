@@ -9,6 +9,7 @@ import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:pollette/PlayScene.dart';
 
 import 'BallPainter.dart';
@@ -20,17 +21,103 @@ import 'firebase_options.dart';
 /// If you press on a square, it will be removed.
 /// If you press anywhere else, another square will be added.
 void main() async {
-
   // runApp(GameWidget(game: GameScene()));
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  MobileAds.instance.initialize();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  InterstitialAd? _interstitialAd;
+  bool _isAdLoaded = false;
+  bool _isAdShown = false;
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+        adUnitId: 'ca-app-pub-3940256099942544/1033173712',
+        request: AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad) {
+          _interstitialAd = ad;
+          _isAdLoaded = true;
+        }, onAdFailedToLoad: (error) {
+          print("전면광고 로드 실패 -> $error");
+        }));
+  }
+
+  void _showInterstitialAd(BuildContext context, Game game) {
+    if (_isAdLoaded && _interstitialAd != null) {
+      _isAdShown = true;
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          _interstitialAd = null; // 광고 객체 초기화
+          _isAdLoaded = false;
+          _loadInterstitialAd(); // 다음 광고 준비
+
+          // 광고 종료 후 팝업 표시
+          final gameScene = game as PlayScene;
+          final remainingBall = gameScene.balls.first;
+
+          showDialog(
+            context: context,
+            builder: (context) => Center(
+              child: AlertDialog(
+                title: Text(
+                  '당첨!',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontFamily: "Galmuri11",
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 색상에 맞는 원 그리기
+                    CustomPaint(
+                      size: Size(100, 100), // 원의 크기 설정
+                      painter: BallPainter(remainingBall.color), // 공의 색상 사용
+                    ),
+                  ],
+                ),
+                actions: <Widget>[
+                  Center(
+                    child: TextButton(
+                      child: Text(
+                        '확인',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontFamily: "Galmuri11",
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () {
+                        game.overlays.remove('BallOverlay');
+                        Navigator.pop(context);
+                        Navigator.pop(context); // PlayScene 닫고 이전 화면(GameScene)으로 이동
+
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+      _interstitialAd!.show(); // 광고 표시
+    } else {
+      print('광고가 아직 로드되지 않았습니다.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    _loadInterstitialAd();
+
     return MaterialApp(
       title: 'Game App',
       home: Scaffold(
@@ -56,43 +143,12 @@ class MyApp extends StatelessWidget {
                       // PlayScene에서도 overlayBuilderMap을 전달해야 합니다.
                       overlayBuilderMap: {
                         'BallOverlay': (BuildContext context, Game game) {
-                          final gameScene = game as PlayScene;
-                          final remainingBall = gameScene.balls.first;
-
-                          return Center(
-                            child: AlertDialog(
-                              title: Text(
-                                '당첨!',
-                              style: TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center,
-                              ),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // 색상에 맞는 원 그리기
-                                  CustomPaint(
-                                    size: Size(100, 100), // 원의 크기 설정
-                                    painter: BallPainter(remainingBall.color), // 공의 색상 사용
-                                  ),
-                                ],
-                              ),
-                              actions: <Widget>[
-                                Center(
-                                  child: TextButton(
-                                    child: Text('확인',
-                                      style: TextStyle(color: Colors.black, fontSize: 15, fontFamily: "Galmuri11", fontWeight: FontWeight.bold),),
-                                    onPressed: () {
-                                      game.overlays.remove('BallOverlay');
-                                      Navigator.pop(context);
-
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
+                          if (!_isAdShown) {
+                            _showInterstitialAd(context, game);
+                            return Container(); // 광고가 끝난 후 팝업이 표시되므로 빈 Container 반환
+                          }
+                          return Container(); // 팝업 이후 중복 호출 방지
                         },
-
                       },
                     ),
                   ),
@@ -120,7 +176,6 @@ class GameScene extends FlameGame with TapDetector {
   late RoundedRectangleButton playButton;
   int numberOfPlayer = 2;
 
-
   int planetIdx = 0;
 
   // PlanetType 리스트
@@ -130,7 +185,6 @@ class GameScene extends FlameGame with TapDetector {
     PlanetType.moon,
     PlanetType.uranus,
   ];
-
 
   final List<Color> balls = [Colors.red, Colors.orange];
   final List<Color> colorSet = [
@@ -148,20 +202,22 @@ class GameScene extends FlameGame with TapDetector {
   Future<void> onLoad() async {
     super.onLoad();
 
-
     imageNode = SpriteComponent()
       ..sprite = await loadSprite(currentPlanet.imageFilename)
       ..size = Vector2(96, 96)
-      ..position = Vector2((size.x / 2) - (96 / 2), size.y / 4); // 이미지 너비의 절반을 뺌
+      ..position =
+          Vector2((size.x / 2) - (96 / 2), size.y / 4); // 이미지 너비의 절반을 뺌
     add(imageNode);
-
 
     // Gravity Label
     final gravityLabel = TextComponent(
       text: "Gravity",
-      textRenderer: TextPaint(style: const TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold)),
+      textRenderer: TextPaint(
+          style: const TextStyle(
+              fontSize: 24,
+              fontFamily: "Galmuri11",
+              fontWeight: FontWeight.bold)),
       position: Vector2((size.x / 2) - (7 * 12 / 2), imageNode.y - 50),
-
     );
     add(gravityLabel);
 
@@ -169,23 +225,37 @@ class GameScene extends FlameGame with TapDetector {
     leftNode = SpriteComponent()
       ..sprite = await loadSprite('left.png') // Chevron 이미지 사용
       ..size = Vector2(40, 40)
-      ..position = Vector2(10, imageNode.position.y + (imageNode.size.y / 2) - (50 / 2)); // 좌측 마진 10, imageNode의 세로 가운데에 맞춤
-      // ..angle = pi; // 180도 회전
+      ..position = Vector2(
+          10,
+          imageNode.position.y +
+              (imageNode.size.y / 2) -
+              (50 / 2)); // 좌측 마진 10, imageNode의 세로 가운데에 맞춤
+    // ..angle = pi; // 180도 회전
     add(leftNode);
     // Right Arrow Button
     rightNode = SpriteComponent()
       ..sprite = await loadSprite('right.png') // Chevron 이미지 사용
       ..size = Vector2(40, 40)
-      ..position = Vector2(size.x - 60, imageNode.position.y + (imageNode.size.y / 2) - (50 / 2)); // 우측 마진 10, imageNode의 세로 가운데
+      ..position = Vector2(
+          size.x - 60,
+          imageNode.position.y +
+              (imageNode.size.y / 2) -
+              (50 / 2)); // 우측 마진 10, imageNode의 세로 가운데
     add(rightNode);
 
     // Players Label
     final playerLabel = TextComponent(
       text: "Players",
-      textRenderer: TextPaint(style: const TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold)),
-      position: Vector2((size.x / 2) - (7 * 12 / 2),
-        imageNode.position.y + imageNode.size.y + 50,  // imageNode의 하단에서 50px 아래
-      ),    );
+      textRenderer: TextPaint(
+          style: const TextStyle(
+              fontSize: 24,
+              fontFamily: "Galmuri11",
+              fontWeight: FontWeight.bold)),
+      position: Vector2(
+        (size.x / 2) - (7 * 12 / 2),
+        imageNode.position.y + imageNode.size.y + 50, // imageNode의 하단에서 50px 아래
+      ),
+    );
     add(playerLabel);
 
     numberNode = TextComponent(
@@ -193,7 +263,9 @@ class GameScene extends FlameGame with TapDetector {
       textRenderer: TextPaint(style: const TextStyle(fontSize: 30)),
       // 좌우 정중앙에 배치되도록 수정 (텍스트 값을 바로 사용하여 길이를 계산)
       position: Vector2(
-        (size.x / 2) - ((numberOfPlayer.toString().length * 24) / 2), // 텍스트 길이를 기준으로 정중앙에 맞춤
+        (size.x / 2) -
+            ((numberOfPlayer.toString().length * 24) /
+                2), // 텍스트 길이를 기준으로 정중앙에 맞춤
         playerLabel.y + 50,
       ),
     );
@@ -203,14 +275,22 @@ class GameScene extends FlameGame with TapDetector {
     decreaseNode = SpriteComponent()
       ..sprite = await loadSprite('left.png')
       ..size = Vector2(40, 40)
-      ..position = Vector2(10, numberNode.position.y + (numberNode.size.y / 2) - (50 / 2)); // 좌측 마진 10, imageNode의 세로 가운데에 맞춤
+      ..position = Vector2(
+          10,
+          numberNode.position.y +
+              (numberNode.size.y / 2) -
+              (50 / 2)); // 좌측 마진 10, imageNode의 세로 가운데에 맞춤
     add(decreaseNode);
     //
     // Plus Button
     increaseNode = SpriteComponent()
       ..sprite = await loadSprite('right.png')
       ..size = Vector2(40, 40)
-      ..position = Vector2(size.x - 60,  numberNode.position.y + (numberNode.size.y / 2) - (50 / 2)); // 우측 마진 10, imageNode의 세로 가운데
+      ..position = Vector2(
+          size.x - 60,
+          numberNode.position.y +
+              (numberNode.size.y / 2) -
+              (50 / 2)); // 우측 마진 10, imageNode의 세로 가운데
     add(increaseNode);
 
     // 공 표시 노드
@@ -220,17 +300,13 @@ class GameScene extends FlameGame with TapDetector {
 
     add(ballLabel);
 
-
-
     playButton = RoundedRectangleButton(
       width: 250,
       height: 60,
       radius: 16,
       color: Colors.lightBlueAccent,
       position: Vector2(size.x / 2, size.y - 96 - 50), // 화면의 좌우 정중앙에 배치
-
-    )
-      ..anchor = Anchor.center; // 중심을 기준으로 위치 설정
+    )..anchor = Anchor.center; // 중심을 기준으로 위치 설정
     add(playButton);
 
     final playLabel = TextComponent(
@@ -241,15 +317,17 @@ class GameScene extends FlameGame with TapDetector {
       //     fontFamily: "Galmuri11-Bold",
       //   ),
       // ),
-      textRenderer: TextPaint(style: const TextStyle(fontSize: 24, fontFamily: "Galmuri11", fontWeight: FontWeight.bold)),
-
+      textRenderer: TextPaint(
+          style: const TextStyle(
+              fontSize: 24,
+              fontFamily: "Galmuri11",
+              fontWeight: FontWeight.bold)),
     )
       ..anchor = Anchor.center // 텍스트의 중심을 기준으로 위치 설정
       ..position = playButton.size / 2; // 버튼의 중심에 맞춤
     playButton.add(playLabel); // 버튼에 텍스트 추가
 
     // 버튼에 텍스트 추가
-
   }
 
   void updateBalls() {
@@ -259,7 +337,8 @@ class GameScene extends FlameGame with TapDetector {
     // 공들의 총 너비 계산 (각 공이 36px 간격으로 배치됨, 공의 크기가 작아짐)
     final ballRadius = 8.0; // 공의 반지름을 작게 설정 (기존보다 작음)
     final ballSpacing = 36.0; // 공 사이의 간격을 36px로 좁힘
-    final totalWidth = (balls.length - 1) * ballSpacing + ballRadius * 2; // 각 공 간격과 마지막 공의 위치 포함
+    final totalWidth = (balls.length - 1) * ballSpacing +
+        ballRadius * 2; // 각 공 간격과 마지막 공의 위치 포함
 
     // 공을 새로 추가
     for (var i = 0; i < balls.length; i++) {
@@ -268,16 +347,15 @@ class GameScene extends FlameGame with TapDetector {
         paint: Paint()..color = balls[i], // 색상 설정
         position: Vector2(
           // numberNode의 중앙에서 공들의 총 너비의 절반만큼 왼쪽으로 이동한 위치에서 시작
-          (numberNode.position.x + (numberNode.size.x / 2)) - (totalWidth / 2) + (i * ballSpacing),
+          (numberNode.position.x + (numberNode.size.x / 2)) -
+              (totalWidth / 2) +
+              (i * ballSpacing),
           numberNode.position.y + 100, // numberNode의 아래쪽에 배치 (100px 아래)
         ),
       );
       add(ball); // 공 추가
     }
   }
-
-
-
 
   void increasePlayers() {
     if (numberOfPlayer < 8) {
@@ -287,7 +365,6 @@ class GameScene extends FlameGame with TapDetector {
     }
   }
 
-
   void decreasePlayers() {
     print("decrease -> ${numberOfPlayer} -- ");
     if (numberOfPlayer > 2) {
@@ -296,8 +373,9 @@ class GameScene extends FlameGame with TapDetector {
       removeBall();
     }
   }
+
   void addBall() {
-    balls.add(colorSet[numberOfPlayer -3]);
+    balls.add(colorSet[numberOfPlayer - 3]);
     updateBalls();
   }
 
@@ -307,11 +385,10 @@ class GameScene extends FlameGame with TapDetector {
     updateBalls();
   }
 
-
   //오른쪽 버튼 액션 (행성)
   void rightButtonAction() {
-    planetIdx +=1;
-    planetIdx =  planetIdx % planetTypes.length;
+    planetIdx += 1;
+    planetIdx = planetIdx % planetTypes.length;
     updatePlanet();
   }
 
@@ -319,11 +396,10 @@ class GameScene extends FlameGame with TapDetector {
   void leftButtonAction() {
     planetIdx -= 1;
     if (planetIdx < 0) {
-      planetIdx = planetTypes.length -1;
+      planetIdx = planetTypes.length - 1;
     }
     updatePlanet();
   }
-
 
   //행성 업데이트 메소드
   void updatePlanet() async {
@@ -331,15 +407,16 @@ class GameScene extends FlameGame with TapDetector {
     imageNode = SpriteComponent()
       ..sprite = await loadSprite(currentPlanet.imageFilename) // 새로운 행성 로드
       ..size = Vector2(96, 96) // 행성 크기 설정
-      ..position = Vector2((size.x / 2) - (96 / 2), size.y / 4); // 이미지 너비의 절반을 뺌
-
+      ..position =
+          Vector2((size.x / 2) - (96 / 2), size.y / 4); // 이미지 너비의 절반을 뺌
 
     add(imageNode);
   }
 
   @override
   void onTapDown(TapDownInfo info) {
-    final touchPosition = info.raw.globalPosition.toVector2(); // 터치 위치를 Vector2로 변환
+    final touchPosition =
+        info.raw.globalPosition.toVector2(); // 터치 위치를 Vector2로 변환
 
     // leftNode가 터치된 경우 확인
     if (leftNode.containsPoint(touchPosition)) {
@@ -357,13 +434,6 @@ class GameScene extends FlameGame with TapDetector {
     } else if (playButton.containsPoint(touchPosition)) {
       print("click play");
       overlays.add('startOverlay');
-
     }
-
-
   }
-
-
-
 }
-
